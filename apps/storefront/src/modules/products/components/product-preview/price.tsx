@@ -1,0 +1,29 @@
+import { clx } from "@modules/common/components/ui"
+import { VariantPrice } from "types/global"
+
+export default async function PreviewPrice({ price }: { price: VariantPrice }) {
+  if (!price) {
+    return null
+  }
+
+  const isSale = price.price_type === "sale"
+
+  return (
+    <div className="flex items-baseline gap-x-2">
+      {isSale && (
+        <span
+          className="text-sm text-muted line-through"
+          data-testid="original-price"
+        >
+          {price.original_price}
+        </span>
+      )}
+      <span
+        className={clx("text-lg font-bold", isSale ? "text-sale" : "text-navy")}
+        data-testid="price"
+      >
+        {price.calculated_price}
+      </span>
+    </div>
+  )
+}

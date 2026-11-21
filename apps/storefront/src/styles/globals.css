@@ -1,0 +1,201 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/*
+ * Store themes. The active one is set by STORE_THEME in src/lib/store-config.ts
+ * (data-theme on <html>). Values are "R G B" so Tailwind opacity modifiers work.
+ *   --brand       accent fill (buttons, badges, highlights)
+ *   --brand-fg    text on an accent fill
+ *   --brand-ink   accent-colored text on white
+ *   --brand-bright accent-colored text on the dark base
+ *   --navy        dark base (top bar, category bar, footer, hero)
+ */
+:root,
+[data-theme="turkuaz"] {
+  --brand: 12 133 153; /* cyan 8 #0c8599 */
+  --brand-dark: 11 114 133; /* cyan 9 #0b7285 */
+  --brand-light: 21 170 191; /* cyan 6 #15aabf */
+  --brand-50: 227 250 252; /* cyan 0 #e3fafc */
+  --brand-100: 197 246 250; /* cyan 1 #c5f6fa */
+  --brand-fg: 255 255 255;
+  --brand-ink: 11 114 133; /* cyan 9 */
+  --brand-bright: 59 201 219; /* cyan 4 #3bc9db */
+  --navy: 35 39 43;
+  --navy-light: 51 56 61;
+}
+
+[data-theme="turuncu"] {
+  --brand: 232 101 14;
+  --brand-dark: 201 82 10;
+  --brand-light: 240 138 62;
+  --brand-50: 255 244 236;
+  --brand-100: 255 226 204;
+  --brand-fg: 255 255 255;
+  --brand-ink: 194 81 10;
+  --brand-bright: 240 138 62;
+  --navy: 35 39 43;
+  --navy-light: 51 56 61;
+}
+
+[data-theme="sari"] {
+  --brand: 255 193 7;
+  --brand-dark: 229 172 0;
+  --brand-light: 255 213 79;
+  --brand-50: 255 249 230;
+  --brand-100: 255 237 179;
+  --brand-fg: 30 30 30;
+  --brand-ink: 148 108 0;
+  --brand-bright: 255 193 7;
+  --navy: 35 39 43;
+  --navy-light: 51 56 61;
+}
+
+[data-theme="mavi"] {
+  --brand: 3 96 160;
+  --brand-dark: 2 75 125;
+  --brand-light: 2 120 184;
+  --brand-50: 238 245 251;
+  --brand-100: 214 231 244;
+  --brand-fg: 255 255 255;
+  --brand-ink: 3 96 160;
+  --brand-bright: 78 168 222;
+  --navy: 7 40 53;
+  --navy-light: 14 58 76;
+}
+
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  input:focus ~ label,
+  input:not(:placeholder-shown) ~ label {
+    @apply -translate-y-2 text-xsmall-regular;
+  }
+
+  input:focus ~ label {
+    @apply left-0;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    border: 1px solid #212121;
+    -webkit-text-fill-color: #212121;
+    -webkit-box-shadow: 0 0 0px 1000px #fff inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  input[type="search"]::-webkit-search-decoration,
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-results-button,
+  input[type="search"]::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+  }
+}
+
+@layer components {
+  /* Signature: tape-measure ticks. Tick color follows the text color. */
+  .tape-ticks {
+    background-image: linear-gradient(90deg, currentColor 1px, transparent 1px),
+      linear-gradient(90deg, currentColor 1px, transparent 1px),
+      linear-gradient(90deg, currentColor 1px, transparent 1px);
+    background-size: 8px 5px, 40px 9px, 80px 13px;
+    background-repeat: repeat-x;
+    background-position: left bottom;
+  }
+
+  /* Signature: blueprint / engineering-paper grid. */
+  .blueprint-dark {
+    background-image: linear-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+      linear-gradient(rgb(255 255 255 / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px);
+    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  }
+
+  .blueprint-light {
+    background-image: linear-gradient(rgb(var(--brand) / 0.09) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--brand) / 0.09) 1px, transparent 1px),
+      linear-gradient(rgb(var(--brand) / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--brand) / 0.04) 1px, transparent 1px);
+    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  }
+
+  .content-container {
+    @apply max-w-[1440px] w-full mx-auto px-6;
+  }
+
+  .contrast-btn {
+    @apply px-4 py-2 border border-black rounded-full hover:bg-black hover:text-white transition-colors duration-200 ease-in;
+  }
+
+  .text-xsmall-regular {
+    @apply text-[10px] leading-4 font-normal;
+  }
+
+  .text-small-regular {
+    @apply text-xs leading-5 font-normal;
+  }
+
+  .text-small-semi {
+    @apply text-xs leading-5 font-semibold;
+  }
+
+  .text-base-regular {
+    @apply text-sm leading-6 font-normal;
+  }
+
+  .text-base-semi {
+    @apply text-sm leading-6 font-semibold;
+  }
+
+  .text-large-regular {
+    @apply text-base leading-6 font-normal;
+  }
+
+  .text-large-semi {
+    @apply text-base leading-6 font-semibold;
+  }
+
+  .text-xl-regular {
+    @apply text-2xl leading-[36px] font-normal;
+  }
+
+  .text-xl-semi {
+    @apply text-2xl leading-[36px] font-semibold;
+  }
+
+  .text-2xl-regular {
+    @apply text-[30px] leading-[48px] font-normal;
+  }
+
+  .text-2xl-semi {
+    @apply text-[30px] leading-[48px] font-semibold;
+  }
+
+  .text-3xl-regular {
+    @apply text-[32px] leading-[44px] font-normal;
+  }
+
+  .text-3xl-semi {
+    @apply text-[32px] leading-[44px] font-semibold;
+  }
+}
