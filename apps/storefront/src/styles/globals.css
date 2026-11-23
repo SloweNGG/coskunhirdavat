@@ -81,7 +81,7 @@
 
   input:focus ~ label,
   input:not(:placeholder-shown) ~ label {
-    @apply -translate-y-2 text-xsmall-regular;
+    @apply -translate-y-3 text-xsmall-regular;
   }
 
   input:focus ~ label {
@@ -198,4 +198,32 @@
   .text-3xl-semi {
     @apply text-[32px] leading-[44px] font-semibold;
   }
+}
+
+/* Free shipping bar: fill grows in, success text pops, confetti burst */
+@keyframes fs-fill-in {
+  from { transform: scaleX(0); }
+}
+@keyframes fs-pop-in {
+  0% { transform: scale(0.85); opacity: 0; }
+  60% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes fs-confetti-burst {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  100% { transform: translate(var(--x), calc(var(--y) + 90px)) rotate(var(--r)); opacity: 0; }
+}
+.fs-fill { transform-origin: left; animation: fs-fill-in 0.9s ease-out; }
+.fs-pop { animation: fs-pop-in 0.5s ease-out; }
+.fs-confetti {
+  position: absolute;
+  top: 0.5rem;
+  width: 7px;
+  height: 11px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: fs-confetti-burst 1.4s cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fs-fill, .fs-pop { animation: none; }
 }

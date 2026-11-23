@@ -15,6 +15,15 @@ export const convertToLocale = ({
   maximumFractionDigits,
   locale = "tr-TR",
 }: ConvertToLocaleParams) => {
+  if (currency_code?.toLowerCase() === "try") {
+    // Turkish shops write "1.026,00 TL" rather than "₺1.026,00"
+    return `${new Intl.NumberFormat(locale, {
+      minimumFractionDigits:
+        minimumFractionDigits ?? Math.min(2, maximumFractionDigits ?? 2),
+      maximumFractionDigits: maximumFractionDigits ?? 2,
+    }).format(amount)} TL`
+  }
+
   return currency_code && !isEmpty(currency_code)
     ? new Intl.NumberFormat(locale, {
         style: "currency",

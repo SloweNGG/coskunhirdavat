@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd apps/backend && npx medusa develop -p 9001"],
+      "port": 9001
+    },
+    {
+      "name": "storefront",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd apps/storefront && npx next dev -p 8001"],
+      "port": 8001
+    }
+  ]
+}

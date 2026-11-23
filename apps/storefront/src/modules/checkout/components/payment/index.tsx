@@ -2,7 +2,7 @@
 import { RadioGroup } from "@headlessui/react"
 import { getPaymentInfo, isStripeLike } from "@lib/constants"
 import { initiatePaymentSession } from "@lib/data/cart"
-import { CheckCircleSolid, CreditCard } from "@medusajs/icons"
+import { CreditCard } from "@medusajs/icons"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import PaymentContainer, {
   StripePaymentContainer,
@@ -18,6 +18,8 @@ import {
 import { HttpTypes } from "@medusajs/types"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
+import StepTitle from "@modules/checkout/components/step-title"
+import { CHECKOUT_CTA } from "@modules/checkout/components/cta-class"
 
 const Payment = ({
   cart,
@@ -54,11 +56,15 @@ const Payment = ({
   }
 
   const paidByGiftcard = !!(
-    (cart as unknown as Record<string, unknown>)?.gift_cards && ((cart as unknown as Record<string, unknown>)?.gift_cards as unknown[])?.length > 0 && cart?.total === 0
+    (cart as unknown as Record<string, unknown>)?.gift_cards &&
+    ((cart as unknown as Record<string, unknown>)?.gift_cards as unknown[])
+      ?.length > 0 &&
+    cart?.total === 0
   )
 
   const paymentReady =
-    (activeSession && (cart?.shipping_methods?.length ?? 0) !== 0) || paidByGiftcard
+    (activeSession && (cart?.shipping_methods?.length ?? 0) !== 0) ||
+    paidByGiftcard
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -115,16 +121,12 @@ const Payment = ({
       <div className="flex flex-row items-center justify-between mb-6">
         <Heading
           level="h2"
-          className={clx(
-            "flex flex-row text-3xl-regular gap-x-2 items-baseline",
-            {
-              "opacity-50 pointer-events-none select-none":
-                !isOpen && !paymentReady,
-            }
-          )}
+          className={clx("flex flex-row items-center", {
+            "opacity-50 pointer-events-none select-none":
+              !isOpen && !paymentReady,
+          })}
         >
-          Payment
-          {!isOpen && paymentReady && <CheckCircleSolid />}
+          <StepTitle step={3} title="Ödeme" done={!isOpen && paymentReady} />
         </Heading>
         {!isOpen && paymentReady && (
           <Text>
@@ -133,7 +135,7 @@ const Payment = ({
               className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
               data-testid="edit-payment-button"
             >
-              Edit
+              Düzenle
             </button>
           </Text>
         )}
@@ -170,13 +172,13 @@ const Payment = ({
           {paidByGiftcard && (
             <div className="flex flex-col w-1/3">
               <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                Payment method
+                Ödeme yöntemi
               </Text>
               <Text
                 className="txt-medium text-ui-fg-subtle"
                 data-testid="payment-method-summary"
               >
-                Gift card
+                Hediye kartı
               </Text>
             </div>
           )}
@@ -188,7 +190,7 @@ const Payment = ({
 
           <Button
             size="large"
-            className="mt-6"
+            className={`mt-6 ${CHECKOUT_CTA}`}
             onClick={handleSubmit}
             isLoading={isLoading}
             disabled={
@@ -198,8 +200,8 @@ const Payment = ({
             data-testid="submit-payment-button"
           >
             {!activeSession && isStripeLike(selectedPaymentMethod)
-              ? "Enter payment details"
-              : "Continue to review"}
+              ? "Ödeme bilgilerini gir"
+              : "Onaya devam et"}
           </Button>
         </div>
 
@@ -208,7 +210,7 @@ const Payment = ({
             <div className="flex items-start gap-x-1 w-full">
               <div className="flex flex-col w-1/3">
                 <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                  Payment method
+                  Ödeme yöntemi
                 </Text>
                 <Text
                   className="txt-medium text-ui-fg-subtle"
@@ -220,7 +222,7 @@ const Payment = ({
               </div>
               <div className="flex flex-col w-1/3">
                 <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                  Payment details
+                  Ödeme bilgileri
                 </Text>
                 <div
                   className="flex gap-2 txt-medium text-ui-fg-subtle items-center"
@@ -231,20 +233,20 @@ const Payment = ({
                       <CreditCard />
                     )}
                   </Container>
-                  <Text>Another step will appear</Text>
+                  <Text>Bir sonraki adımda tamamlanacak</Text>
                 </div>
               </div>
             </div>
           ) : paidByGiftcard ? (
             <div className="flex flex-col w-1/3">
               <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                Payment method
+                Ödeme yöntemi
               </Text>
               <Text
                 className="txt-medium text-ui-fg-subtle"
                 data-testid="payment-method-summary"
               >
-                Gift card
+                Hediye kartı
               </Text>
             </div>
           ) : null}

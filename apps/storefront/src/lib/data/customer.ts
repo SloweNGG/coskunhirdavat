@@ -146,6 +146,9 @@ async function completeLogin(
   try {
     result = await sdk.auth.login("customer", "emailpass", { email, password })
   } catch (error) {
+    if ((error as FetchError).statusText === "Unauthorized") {
+      return { state: "error", error: "E-posta veya şifre hatalı." }
+    }
     return { state: "error", error: String(error) }
   }
 
@@ -154,7 +157,7 @@ async function completeLogin(
   if (typeof result === "object" && "location" in result) {
     return {
       state: "error",
-      error: "This login method isn't supported by the storefront.",
+      error: "Bu giriş yöntemi desteklenmiyor.",
     }
   }
 
@@ -176,7 +179,7 @@ async function completeLogin(
   if (typeof result !== "string") {
     return {
       state: "error",
-      error: "Authentication requires additional steps that aren't supported.",
+      error: "Kimlik doğrulama, desteklenmeyen ek adımlar gerektiriyor.",
     }
   }
 
@@ -343,7 +346,7 @@ export const updateCustomerAddress = async (
     (currentState.addressId as string) || (formData.get("addressId") as string)
 
   if (!addressId) {
-    return { success: false, error: "Address ID is required" }
+    return { success: false, error: "Adres kimliği gerekli" }
   }
 
   const address = {

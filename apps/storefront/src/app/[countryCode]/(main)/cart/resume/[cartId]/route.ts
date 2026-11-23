@@ -20,7 +20,7 @@ export async function GET(
       throw new Error("Cart is no longer open")
     }
   } catch {
-    return new NextResponse("This cart link has expired", {
+    return new NextResponse("Bu sepet bağlantısının süresi dolmuş", {
       status: 410,
       headers: NO_STORE,
     })

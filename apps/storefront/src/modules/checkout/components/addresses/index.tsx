@@ -2,17 +2,21 @@
 import { setAddresses } from "@lib/data/cart"
 import useToggleState from "@lib/hooks/use-toggle-state"
 import compareAddresses from "@lib/util/compare-addresses"
-import { CheckCircleSolid } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import Divider from "@modules/common/components/divider"
-import { Heading, Text } from "@modules/common/components/ui"
+import { Heading, Text, clx } from "@modules/common/components/ui"
 import Spinner from "@modules/common/icons/spinner"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useActionState } from "react"
+import Checkbox from "@modules/common/components/checkbox"
 import BillingAddress from "../billing_address"
+import InvoiceDetails from "@modules/order/components/invoice-details"
 import ErrorMessage from "../error-message"
+import InvoiceType from "../invoice-type"
 import ShippingAddress from "../shipping-address"
 import { SubmitButton } from "../submit-button"
+import StepTitle from "@modules/checkout/components/step-title"
+import { CHECKOUT_CTA } from "@modules/checkout/components/cta-class"
 
 const Addresses = ({
   cart,
@@ -41,13 +45,14 @@ const Addresses = ({
 
   return (
     <div className="bg-white">
-      <div className="flex flex-row items-center justify-between mb-6">
-        <Heading
-          level="h2"
-          className="flex flex-row text-3xl-regular gap-x-2 items-baseline"
-        >
-          Shipping Address
-          {!isOpen && <CheckCircleSolid />}
+      <div
+        className={clx(
+          "flex flex-row items-center justify-between mb-6",
+          isOpen && "hidden"
+        )}
+      >
+        <Heading level="h2" className="flex flex-row items-center">
+          <StepTitle step={1} title="Adres" done={!isOpen} />
         </Heading>
         {!isOpen && cart?.shipping_address && (
           <Text>
@@ -56,7 +61,7 @@ const Addresses = ({
               className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
               data-testid="edit-address-button"
             >
-              Edit
+              Düzenle
             </button>
           </Text>
         )}
@@ -64,27 +69,34 @@ const Addresses = ({
       {isOpen ? (
         <form action={formAction}>
           <div className="pb-8">
-            <ShippingAddress
-              customer={customer}
-              checked={sameAsBilling}
-              onChange={toggleSameAsBilling}
-              cart={cart}
-            />
+            <ShippingAddress customer={customer} cart={cart} />
 
+            <InvoiceType
+              cart={cart}
+              besideToggle={
+                <Checkbox
+                  id="same_as_billing"
+                  label="Fatura adresim teslimat adresimle aynı"
+                  name="same_as_billing"
+                  checked={sameAsBilling}
+                  onChange={toggleSameAsBilling}
+                  data-testid="billing-address-checkbox"
+                />
+              }
+            />
             {!sameAsBilling && (
               <div>
-                <Heading
-                  level="h2"
-                  className="text-3xl-regular gap-x-4 pb-6 pt-8"
-                >
-                  Billing address
-                </Heading>
-
+                <h3 className="mb-4 mt-8 text-lg font-semibold text-navy">
+                  Fatura Adresi
+                </h3>
                 <BillingAddress cart={cart} />
               </div>
             )}
-            <SubmitButton className="mt-6" data-testid="submit-address-button">
-              Continue to delivery
+            <SubmitButton
+              className={`mt-7 ${CHECKOUT_CTA}`}
+              data-testid="submit-address-button"
+            >
+              Teslimata devam et
             </SubmitButton>
             <ErrorMessage error={message} data-testid="address-error-message" />
           </div>
@@ -100,7 +112,7 @@ const Addresses = ({
                     data-testid="shipping-address-summary"
                   >
                     <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                      Shipping Address
+                      Teslimat adresi
                     </Text>
                     <Text className="txt-medium text-ui-fg-subtle">
                       {cart.shipping_address.first_name}{" "}
@@ -111,8 +123,13 @@ const Addresses = ({
                       {cart.shipping_address.address_2}
                     </Text>
                     <Text className="txt-medium text-ui-fg-subtle">
-                      {cart.shipping_address.postal_code},{" "}
-                      {cart.shipping_address.city}
+                      {[
+                        cart.shipping_address.postal_code,
+                        cart.shipping_address.city,
+                        cart.shipping_address.province,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
                     </Text>
                     <Text className="txt-medium text-ui-fg-subtle">
                       {cart.shipping_address.country_code?.toUpperCase()}
@@ -124,7 +141,7 @@ const Addresses = ({
                     data-testid="shipping-contact-summary"
                   >
                     <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                      Contact
+                      İletişim
                     </Text>
                     <Text className="txt-medium text-ui-fg-subtle">
                       {cart.shipping_address.phone}
@@ -139,12 +156,12 @@ const Addresses = ({
                     data-testid="billing-address-summary"
                   >
                     <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                      Billing Address
+                      Fatura adresi
                     </Text>
 
                     {sameAsBilling ? (
                       <Text className="txt-medium text-ui-fg-subtle">
-                        Billing and delivery address are the same.
+                        Fatura adresi teslimat adresiyle aynı.
                       </Text>
                     ) : (
                       <>
@@ -157,14 +174,22 @@ const Addresses = ({
                           {cart.billing_address?.address_2}
                         </Text>
                         <Text className="txt-medium text-ui-fg-subtle">
-                          {cart.billing_address?.postal_code},{" "}
-                          {cart.billing_address?.city}
+                          {[
+                            cart.billing_address?.postal_code,
+                            cart.billing_address?.city,
+                            cart.billing_address?.province,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}
                         </Text>
                         <Text className="txt-medium text-ui-fg-subtle">
                           {cart.billing_address?.country_code?.toUpperCase()}
                         </Text>
                       </>
                     )}
+                    <div className="mt-4">
+                      <InvoiceDetails metadata={cart.metadata} />
+                    </div>
                   </div>
                 </div>
               </div>

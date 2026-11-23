@@ -11,6 +11,10 @@ import Thumbnail from "@modules/products/components/thumbnail"
 import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
 import SearchPagination from "./pagination"
 import HitPrice, { HitPricing } from "./price"
+import { priceAttribute } from "@lib/search-client"
+import FreeShippingBadge, {
+  qualifiesForFreeShipping,
+} from "@modules/common/components/free-shipping-badge"
 
 type ProductHit = Hit<
   {
@@ -85,8 +89,16 @@ const StoreHits = ({ hitsPerPage, currencyCode }: StoreHitsProps) => {
                 >
                   <div
                     data-testid="product-wrapper"
-                    className="flex h-full flex-col overflow-hidden rounded-lg border border-line bg-white transition-all duration-200 group-hover:border-brand group-hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
+                    className="relative flex h-full flex-col overflow-hidden rounded-lg border border-line bg-white transition-all duration-200 group-hover:border-brand group-hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
                   >
+                    {qualifiesForFreeShipping(
+                      hit[priceAttribute("min_price", currencyCode)] as number
+                    ) && (
+                      <FreeShippingBadge
+                        size="sm"
+                        className="absolute right-3 top-3 z-10"
+                      />
+                    )}
                     <Thumbnail
                       thumbnail={hit.thumbnail}
                       size="square"

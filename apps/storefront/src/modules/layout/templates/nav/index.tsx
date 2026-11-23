@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 
-import { BarsThree, Camera, ListCheckbox, Phone, ShoppingCart, User } from "@medusajs/icons"
+import { BarsThree, Camera, Heart, ListCheckbox, Phone, ShoppingCart, User } from "@medusajs/icons"
 import { listCategories } from "@lib/data/categories"
 import { listLocales } from "@lib/data/locales"
 import { getLocale } from "@lib/data/locale-actions"
@@ -9,6 +9,7 @@ import { PART_FINDER_MESSAGE, STORE_INFO, whatsappLink } from "@lib/store-config
 import { StoreRegion } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartButton from "@modules/layout/components/cart-button"
+import AnniversaryBadge from "@modules/layout/components/anniversary-badge"
 import Logo from "@modules/layout/components/logo"
 import Search from "@modules/layout/components/search"
 import SideMenu from "@modules/layout/components/side-menu"
@@ -89,27 +90,35 @@ export default async function Nav() {
             />
           </div>
 
-          <Logo />
+          <div className="flex items-center small:flex-1">
+            <Logo />
+            <AnniversaryBadge className="ml-4 hidden text-navy medium:block" />
+          </div>
 
-          <div className="hidden small:flex flex-1 max-w-[720px]">
+          <div className="hidden small:flex w-full max-w-[720px]">
             <Search variant="bar" />
           </div>
 
-          <div className="flex flex-1 small:flex-none items-center justify-end gap-x-5 small:gap-x-8 h-full">
+          <div className="flex flex-1 items-center justify-end gap-x-5 small:gap-x-8 h-full">
             <div className="small:hidden flex items-center">
               <Search />
             </div>
+            <LocalizedClientLink
+              className="hidden small:flex items-center gap-x-2 text-navy hover:text-brand-ink"
+              href="/favoriler"
+              aria-label="Favorilerim"
+              title="Favorilerim"
+            >
+              <Heart className="h-6 w-6" />
+            </LocalizedClientLink>
             <LocalizedClientLink
               className="flex items-center gap-x-2 text-navy hover:text-brand-ink"
               href="/account"
               data-testid="nav-account-link"
               aria-label="Hesabım"
+              title="Hesabım"
             >
               <User className="h-6 w-6" />
-              <span className="hidden small:flex flex-col leading-tight">
-                <span className="text-[11px] text-muted">Giriş Yap</span>
-                <span className="text-sm font-semibold">Hesabım</span>
-              </span>
             </LocalizedClientLink>
             <Suspense
               fallback={
@@ -120,9 +129,6 @@ export default async function Nav() {
                   aria-label="Sepetim"
                 >
                   <ShoppingCart className="h-6 w-6" />
-                  <span className="hidden small:block text-sm font-semibold">
-                    Sepetim
-                  </span>
                 </LocalizedClientLink>
               }
             >

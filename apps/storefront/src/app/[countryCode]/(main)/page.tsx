@@ -7,6 +7,8 @@ import ProductSection from "@modules/home/components/product-section"
 import ProjectGrid from "@modules/home/components/project-grid"
 import PromoBanners from "@modules/home/components/promo-banners"
 import UspStrip from "@modules/home/components/usp-strip"
+import HelpBand from "@modules/home/components/help-band"
+import RecentlyViewed from "@modules/products/components/recently-viewed"
 import { listCategories } from "@lib/data/categories"
 import { getRegion, listRegions } from "@lib/data/regions"
 import { toJsonLd } from "@lib/util/product-structured-data"
@@ -55,7 +57,7 @@ export default async function Home(props: {
   }
 
   const categories = await listCategories({
-    fields: "id,name,handle,rank,parent_category_id",
+    fields: "id,name,handle,rank,parent_category_id,metadata",
   })
     .then((list) =>
       list
@@ -105,19 +107,21 @@ export default async function Home(props: {
       <PartFinder />
       <UspStrip />
       <ProductSection
-        eyebrow="03 / En çok tercih edilenler"
+        eyebrow="En çok tercih edilenler"
         title="Çok Satanlar"
         subtitle="Ustaların en çok tercih ettiği ürünler"
         region={region}
       />
       <PromoBanners />
       <ProductSection
-        eyebrow="04 / Rafa yeni girenler"
+        eyebrow="Rafa yeni girenler"
         title="Yeni Ürünler"
         subtitle="Mağazamıza yeni eklenen ürünler"
         region={region}
         order="-created_at"
       />
+      <RecentlyViewed className="content-container py-10 small:py-14" />
+      <HelpBand />
     </>
   )
 }

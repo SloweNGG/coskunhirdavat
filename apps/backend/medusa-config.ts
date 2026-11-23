@@ -20,6 +20,54 @@ module.exports = defineConfig({
   },
   modules: [
     {
+      // Local uploads: point URLs at this backend's port (the default assumes 9000).
+      // Production will switch to S3/R2.
+      resolve: '@medusajs/medusa/file',
+      options: {
+        providers: [
+          {
+            resolve: '@medusajs/medusa/file-local',
+            id: 'local',
+            options: {
+              backend_url: `${process.env.BACKEND_URL || 'http://localhost:9001'}/static`,
+            },
+          },
+        ],
+      },
+    },
+    { resolve: './src/modules/product-review' },
+    { resolve: './src/modules/quote' },
+    { resolve: './src/modules/restock' },
+    {
+      // Email via Resend when RESEND_API_KEY is set, otherwise logged to the console.
+      // Overriding providers drops the default `feed` provider, so it is re-added.
+      resolve: '@medusajs/medusa/notification',
+      options: {
+        providers: [
+          {
+            resolve: '@medusajs/medusa/notification-local',
+            id: 'local',
+            options: { channels: ['feed'] },
+          },
+          process.env.RESEND_API_KEY
+            ? {
+                resolve: './src/modules/resend',
+                id: 'resend',
+                options: {
+                  channels: ['email'],
+                  api_key: process.env.RESEND_API_KEY,
+                  from: process.env.RESEND_FROM,
+                },
+              }
+            : {
+                resolve: '@medusajs/medusa/notification-local',
+                id: 'local-email',
+                options: { channels: ['email'] },
+              },
+        ],
+      },
+    },
+    {
       resolve: '@medusajs/medusa/payment',
       options: {
         providers: paytrConfigured

@@ -42,7 +42,8 @@ const VariantImageGallery = ({
     [product, variantId]
   )
 
-  return <ImageGallery images={images} />
+  // key resets the selected image when another variant is chosen
+  return <ImageGallery key={variantId ?? "all"} images={images} />
 }
 
 export default VariantImageGallery

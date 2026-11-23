@@ -1,4 +1,4 @@
-import { CreditCard } from "@medusajs/icons"
+import { BuildingsMini, CreditCard } from "@medusajs/icons"
 import Bancontact from "@modules/common/icons/bancontact"
 import Ideal from "@modules/common/icons/ideal"
 import PayPal from "@modules/common/icons/paypal"
@@ -10,7 +10,7 @@ export const paymentInfoMap: Record<
   { title: string; icon: React.JSX.Element }
 > = {
   pp_stripe_stripe: {
-    title: "Credit card",
+    title: "Kredi kartı",
     icon: <CreditCard />,
   },
   "pp_stripe-ideal_stripe": {
@@ -30,8 +30,8 @@ export const paymentInfoMap: Record<
     icon: <CreditCard />,
   },
   pp_system_default: {
-    title: "Manual Payment",
-    icon: <CreditCard />,
+    title: "Havale / EFT",
+    icon: <BuildingsMini />,
   },
   // Add more payment providers here
 }
@@ -43,7 +43,7 @@ export const paymentInfoMap: Record<
 const MEDUSA_PAYMENTS_PREFIX = "pp_medusa-payments_"
 
 const medusaPaymentsInfo = {
-  title: "Credit card",
+  title: "Kredi kartı",
   icon: <CreditCard />,
 }
 
@@ -54,7 +54,7 @@ const medusaPaymentsInfo = {
 const ADYEN_PREFIX = "pp_adyen_"
 
 const adyenInfo = {
-  title: "Card, Apple Pay, or Google Pay",
+  title: "Kart, Apple Pay veya Google Pay",
   icon: <CreditCard />,
 }
 
@@ -133,3 +133,7 @@ export const noDivisionCurrencies = [
   "xdr",
   "xau",
 ]
+
+/** Product fields the storefront fetches for listings and product pages. */
+export const PRODUCT_FIELDS =
+  "*variants.calculated_price,+variants.inventory_quantity,*variants.images,*variants.options,+metadata,+tags,"

@@ -7,6 +7,9 @@ import { useSearchParams } from "next/navigation"
 import Script from "next/script"
 import { useEffect, useState } from "react"
 import ErrorMessage from "../error-message"
+import { CHECKOUT_CTA } from "@modules/checkout/components/cta-class"
+import { LockClosedSolid } from "@medusajs/icons"
+import { convertToLocale } from "@lib/util/money"
 
 type PaytrPaymentButtonProps = {
   cart: HttpTypes.StoreCart
@@ -34,6 +37,10 @@ const PaytrPaymentButton = ({
   "data-testid": dataTestId,
 }: PaytrPaymentButtonProps) => {
   const searchParams = useSearchParams()
+  const totalText = convertToLocale({
+    amount: cart.total ?? 0,
+    currency_code: cart.currency_code,
+  })
   const [iframeUrl, setIframeUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(
@@ -96,12 +103,17 @@ const PaytrPaymentButton = ({
           isLoading={loading}
           onClick={openPaymentForm}
           size="large"
+          className={CHECKOUT_CTA}
           data-testid={dataTestId}
         >
-          Kartla öde
+          <LockClosedSolid />
+          Kartla öde · {totalText}
         </Button>
       )}
-      <ErrorMessage error={errorMessage} data-testid="paytr-payment-error-message" />
+      <ErrorMessage
+        error={errorMessage}
+        data-testid="paytr-payment-error-message"
+      />
     </>
   )
 }

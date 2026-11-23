@@ -1,14 +1,18 @@
 import { Metadata } from "next"
 
 import { getStorePolicies } from "@lib/data/store-policies"
-import { PoliciesUnavailable, PolicyPage } from "@modules/policies/templates"
+import {
+  PlaceholderNotice,
+  PoliciesUnavailable,
+  PolicyPage,
+} from "@modules/policies/templates"
 
 export const dynamic = "force-static"
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: "Return policy",
-  description: "How to return items and get a refund.",
+  title: "İade Koşulları",
+  description: "Ürün iadesi ve para iadesi hakkında bilgiler.",
 }
 
 export default async function ReturnsPage(props: {
@@ -18,17 +22,18 @@ export default async function ReturnsPage(props: {
   const { current } = await getStorePolicies(countryCode)
 
   return (
-    <PolicyPage title="Return policy">
+    <PolicyPage title="İade Koşulları">
+      <PlaceholderNotice />
       {current ? (
         <>
           <p>
-            You can return items within {current.returnWindowDays} days of
-            delivery. Items are returned by mail.
+            Ürünleri teslimattan itibaren {current.returnWindowDays} gün
+            içinde kargo ile iade edebilirsiniz.
           </p>
           <p>
             {current.freeReturns
-              ? "Return shipping is free."
-              : "Return shipping costs are paid by the customer."}
+              ? "İade kargosu ücretsizdir."
+              : "İade kargo ücreti müşteriye aittir."}
           </p>
         </>
       ) : (

@@ -1,7 +1,8 @@
 import { clx } from "@modules/common/components/ui"
 import { VariantPrice } from "types/global"
+import PriceText from "@modules/common/components/price-text"
 
-export default async function PreviewPrice({ price }: { price: VariantPrice }) {
+export default function PreviewPrice({ price }: { price: VariantPrice }) {
   if (!price) {
     return null
   }
@@ -15,14 +16,14 @@ export default async function PreviewPrice({ price }: { price: VariantPrice }) {
           className="text-sm text-muted line-through"
           data-testid="original-price"
         >
-          {price.original_price}
+          <PriceText value={price.original_price} />
         </span>
       )}
       <span
         className={clx("text-lg font-bold", isSale ? "text-sale" : "text-navy")}
         data-testid="price"
       >
-        {price.calculated_price}
+        <PriceText value={price.calculated_price} />
       </span>
     </div>
   )

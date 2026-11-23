@@ -2,8 +2,10 @@
 
 import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
-import { getAuthHeaders, getCacheOptions } from "./cookies"
+import { getAuthHeaders, getCacheOptions, getCacheTag, setCartId } from "./cookies"
 import { HttpTypes } from "@medusajs/types"
+import { revalidateTag } from "next/cache"
+import { redirect } from "next/navigation"
 
 export const retrieveOrder = async (id: string) => {
   const headers = {
@@ -75,7 +77,7 @@ export const createTransferRequest = async (
   const id = formData.get("order_id") as string
 
   if (!id) {
-    return { success: false, error: "Order ID is required", order: null }
+    return { success: false, error: "Sipariş numarası gerekli", order: null }
   }
 
   const headers = await getAuthHeaders()
@@ -109,4 +111,26 @@ export const declineTransferRequest = async (id: string, token: string) => {
     .declineTransfer(id, { token }, {}, headers)
     .then(({ order }) => ({ success: true, error: null, order }))
     .catch((err) => ({ success: false, error: err.message, order: null }))
+}
+
+/** Creates a new cart from a past order's items (unavailable ones skipped) and opens it. */
+export const reorder = async (
+  _state: string | null,
+  formData: FormData
+): Promise<string | null> => {
+  const orderId = formData.get("order_id") as string
+  const countryCode = formData.get("country_code") as string
+
+  try {
+    const { cart_id } = await sdk.client.fetch<{ cart_id: string }>(
+      `/store/customers/me/orders/${orderId}/reorder`,
+      { method: "POST", headers: await getAuthHeaders() }
+    )
+    await setCartId(cart_id)
+    revalidateTag(await getCacheTag("carts"), { expire: 0 })
+  } catch (e) {
+    return (e as Error).message || "Sepet oluşturulamadı. Lütfen tekrar deneyin."
+  }
+
+  redirect(`/${countryCode}/cart`)
 }

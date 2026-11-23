@@ -31,7 +31,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <head>
         <link rel="ucp" href="/.well-known/ucp" />
       </head>
-      <body className="font-sans text-navy antialiased">
+      <body className="font-sans bg-white text-navy antialiased">
         <main className="relative">{props.children}</main>
       </body>
     </html>

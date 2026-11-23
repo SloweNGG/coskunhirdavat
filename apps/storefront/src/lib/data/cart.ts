@@ -1,5 +1,6 @@
 "use server"
 
+import { isValidTckn } from "@lib/util/tckn"
 import { sdk } from "@lib/config"
 import medusaError from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
@@ -24,7 +25,7 @@ import { getLocale } from "./locale-actions"
 export async function retrieveCart(cartId?: string, fields?: string) {
   const id = cartId || (await getCartId())
   fields ??=
-    "*items, *region, *items.product, *items.variant, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name"
+    "*items, *region, *items.product, *items.variant, +items.variant.inventory_quantity, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name"
 
   if (!id) {
     return null
@@ -89,11 +90,23 @@ export async function getOrSetCart(countryCode: string) {
   return cart
 }
 
+/** Saves the shopper's order note on the cart (copied to the order metadata). */
+export async function setOrderNote(note: string) {
+  const cartId = await getCartId()
+  if (!cartId) return
+  const current = await retrieveCart(cartId, "id,metadata")
+  await updateCart({
+    metadata: { ...current?.metadata, order_note: note.trim().slice(0, 500) },
+  })
+}
+
 export async function updateCart(data: HttpTypes.StoreUpdateCart) {
   const cartId = await getCartId()
 
   if (!cartId) {
-    throw new Error("No existing cart found, please create one before updating")
+    throw new Error(
+      "Sepetiniz bulunamadı. Lütfen sayfayı yenileyip tekrar deneyin."
+    )
   }
 
   const headers = {
@@ -124,13 +137,13 @@ export async function addToCart({
   countryCode: string
 }) {
   if (!variantId) {
-    throw new Error("Missing variant ID when adding to cart")
+    throw new Error("Lütfen bir ürün seçeneği seçin.")
   }
 
   const cart = await getOrSetCart(countryCode)
 
   if (!cart) {
-    throw new Error("Error retrieving or creating cart")
+    throw new Error("Sepet oluşturulamadı. Lütfen tekrar deneyin.")
   }
 
   const headers = {
@@ -165,13 +178,15 @@ export async function updateLineItem({
   quantity: number
 }) {
   if (!lineId) {
-    throw new Error("Missing lineItem ID when updating line item")
+    throw new Error("Ürün sepette bulunamadı.")
   }
 
   const cartId = await getCartId()
 
   if (!cartId) {
-    throw new Error("Missing cart ID when updating line item")
+    throw new Error(
+      "Sepetiniz bulunamadı. Lütfen sayfayı yenileyip tekrar deneyin."
+    )
   }
 
   const headers = {
@@ -192,13 +207,15 @@ export async function updateLineItem({
 
 export async function deleteLineItem(lineId: string) {
   if (!lineId) {
-    throw new Error("Missing lineItem ID when deleting line item")
+    throw new Error("Ürün sepette bulunamadı.")
   }
 
   const cartId = await getCartId()
 
   if (!cartId) {
-    throw new Error("Missing cart ID when deleting line item")
+    throw new Error(
+      "Sepetiniz bulunamadı. Lütfen sayfayı yenileyip tekrar deneyin."
+    )
   }
 
   const headers = {
@@ -259,7 +276,9 @@ export async function applyPromotions(codes: string[]) {
   const cartId = await getCartId()
 
   if (!cartId) {
-    throw new Error("No existing cart found")
+    throw new Error(
+      "Sepetiniz bulunamadı. Lütfen sayfayı yenileyip tekrar deneyin."
+    )
   }
 
   const headers = {
@@ -337,11 +356,13 @@ export async function submitPromotionForm(
 export async function setAddresses(currentState: unknown, formData: FormData) {
   try {
     if (!formData) {
-      throw new Error("No form data found when setting addresses")
+      throw new Error("Adres bilgileri alınamadı. Lütfen tekrar deneyin.")
     }
-    const cartId = getCartId()
+    const cartId = await getCartId()
     if (!cartId) {
-      throw new Error("No existing cart found when setting addresses")
+      throw new Error(
+        "Sepetiniz bulunamadı. Lütfen sayfayı yenileyip tekrar deneyin."
+      )
     }
 
     const data = {
@@ -350,8 +371,6 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
         last_name: formData.get("shipping_address.last_name"),
         address_1: formData.get("shipping_address.address_1"),
         address_2: "",
-        company: formData.get("shipping_address.company"),
-        postal_code: formData.get("shipping_address.postal_code"),
         city: formData.get("shipping_address.city"),
         country_code: formData.get("shipping_address.country_code"),
         province: formData.get("shipping_address.province"),
@@ -369,13 +388,57 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
         last_name: formData.get("billing_address.last_name"),
         address_1: formData.get("billing_address.address_1"),
         address_2: "",
-        company: formData.get("billing_address.company"),
-        postal_code: formData.get("billing_address.postal_code"),
         city: formData.get("billing_address.city"),
         country_code: formData.get("billing_address.country_code"),
         province: formData.get("billing_address.province"),
         phone: formData.get("billing_address.phone"),
       }
+
+    const str = (key: string) => String(formData.get(key) ?? "").trim()
+    const invoice =
+      str("invoice.type") === "corporate"
+        ? {
+            type: "corporate",
+            company_name: str("invoice.company_name"),
+            tax_office: str("invoice.tax_office"),
+            tax_number: str("invoice.tax_number"),
+          }
+        : {
+            type: "individual",
+            ...(str("invoice.tc_number")
+              ? { tc_number: str("invoice.tc_number") }
+              : {}),
+          }
+    if (invoice.type === "corporate") {
+      if (!invoice.company_name || !invoice.tax_office) {
+        throw new Error(
+          "Lütfen firma ünvanı ve vergi dairesi bilgilerini girin."
+        )
+      }
+      if (!/^\d{10,11}$/.test(invoice.tax_number!)) {
+        throw new Error(
+          "Vergi numarası yalnızca rakamlardan oluşmalı ve 10 haneli (şahıs şirketleri için 11 haneli TCKN) olmalıdır."
+        )
+      }
+    }
+    if (
+      invoice.type === "individual" &&
+      "tc_number" in invoice &&
+      !isValidTckn(invoice.tc_number as string)
+    ) {
+      throw new Error(
+        "Lütfen geçerli bir TC kimlik numarası girin ya da alanı boş bırakın."
+      )
+    }
+    // Merge so other cart metadata keys are kept; cart metadata is copied to the order on completion.
+    const current = await retrieveCart(cartId, "id,metadata")
+    data.metadata = {
+      ...current?.metadata,
+      invoice,
+      // e-mail marketing consent (İYS/KVKK), given at checkout
+      marketing_opt_in: formData.get("marketing_opt_in") === "on",
+    }
+
     await updateCart(data)
   } catch (e: any) {
     return e.message
@@ -395,7 +458,9 @@ export async function placeOrder(cartId?: string) {
   const id = cartId || (await getCartId())
 
   if (!id) {
-    throw new Error("No existing cart found when placing an order")
+    throw new Error(
+      "Sepetiniz bulunamadı. Lütfen sayfayı yenileyip tekrar deneyin."
+    )
   }
 
   const headers = {
@@ -451,23 +516,4 @@ export async function updateRegion(countryCode: string, currentPath: string) {
   revalidateTag(productsCacheTag, { expire: 0 })
 
   redirect(`/${countryCode}${currentPath}`)
-}
-
-export async function listCartOptions() {
-  const cartId = await getCartId()
-  const headers = {
-    ...(await getAuthHeaders()),
-  }
-  const next = {
-    ...(await getCacheOptions("shippingOptions")),
-  }
-
-  return await sdk.client.fetch<{
-    shipping_options: HttpTypes.StoreCartShippingOption[]
-  }>("/store/shipping-options", {
-    query: { cart_id: cartId },
-    next,
-    headers,
-    cache: "force-cache",
-  })
 }

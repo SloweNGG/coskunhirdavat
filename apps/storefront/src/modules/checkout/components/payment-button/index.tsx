@@ -8,6 +8,9 @@ import { useElements, useStripe } from "@stripe/react-stripe-js"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import ErrorMessage from "../error-message"
+import { CHECKOUT_CTA } from "@modules/checkout/components/cta-class"
+import { LockClosedSolid } from "@medusajs/icons"
+import { convertToLocale } from "@lib/util/money"
 import { getPaymentErrorMessage } from "@lib/util/payment-error"
 import AdyenPaymentButton from "./adyen-payment-button"
 import PaytrPaymentButton from "./paytr-payment-button"
@@ -15,13 +18,17 @@ import PaytrPaymentButton from "./paytr-payment-button"
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
   "data-testid": string
+  /** extra condition, e.g. the contract consent box must be ticked */
+  disabled?: boolean
 }
 
 const PaymentButton: React.FC<PaymentButtonProps> = ({
   cart,
   "data-testid": dataTestId,
+  disabled = false,
 }) => {
   const notReady =
+    disabled ||
     !cart ||
     !cart.shipping_address ||
     !cart.billing_address ||
@@ -29,6 +36,10 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     (cart.shipping_methods?.length ?? 0) < 1
 
   const paymentSession = cart.payment_collection?.payment_sessions?.[0]
+  const totalText = convertToLocale({
+    amount: cart.total ?? 0,
+    currency_code: cart.currency_code,
+  })
 
   switch (true) {
     case isStripeLike(paymentSession?.provider_id):
@@ -57,10 +68,14 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       )
     case isManual(paymentSession?.provider_id):
       return (
-        <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
+        <ManualTestPaymentButton
+          notReady={notReady}
+          totalText={totalText}
+          data-testid={dataTestId}
+        />
       )
     default:
-      return <Button disabled>Select a payment method</Button>
+      return <Button disabled>Ödeme yöntemi seçin</Button>
   }
 }
 
@@ -169,7 +184,7 @@ const StripePaymentButton = ({
         isLoading={submitting}
         data-testid={dataTestId}
       >
-        Place order
+        Siparişi tamamla
       </Button>
       <ErrorMessage
         error={errorMessage}
@@ -179,7 +194,14 @@ const StripePaymentButton = ({
   )
 }
 
-const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
+const ManualTestPaymentButton = ({
+  notReady,
+  totalText,
+}: {
+  notReady: boolean
+  totalText: string
+  "data-testid"?: string
+}) => {
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -206,9 +228,11 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
         isLoading={submitting}
         onClick={handlePayment}
         size="large"
+        className={CHECKOUT_CTA}
         data-testid="submit-order-button"
       >
-        Place order
+        <LockClosedSolid />
+        Siparişi tamamla · {totalText}
       </Button>
       <ErrorMessage
         error={errorMessage}
