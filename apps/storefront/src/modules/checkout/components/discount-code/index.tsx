@@ -1,6 +1,12 @@
 "use client"
 
-import { Badge, Heading, Input, Label, Text } from "@modules/common/components/ui"
+import {
+  Badge,
+  Heading,
+  Input,
+  Label,
+  Text,
+} from "@modules/common/components/ui"
 import React from "react"
 
 import { applyPromotions } from "@lib/data/cart"
@@ -12,10 +18,15 @@ import { SubmitButton } from "../submit-button"
 
 type DiscountCodeProps = {
   cart: HttpTypes.StoreCart
+  /** show the code field right away instead of behind "İndirim kodu ekle" */
+  alwaysOpen?: boolean
 }
 
-const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
-  const [isOpen, setIsOpen] = React.useState(false)
+const DiscountCode: React.FC<DiscountCodeProps> = ({
+  cart,
+  alwaysOpen = false,
+}) => {
+  const [isOpen, setIsOpen] = React.useState(alwaysOpen)
   const [errorMessage, setErrorMessage] = React.useState("")
 
   const { promotions = [] } = cart
@@ -54,40 +65,68 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
   }
 
   return (
-    <div className="w-full bg-white flex flex-col">
+    <div className="w-full flex flex-col">
       <div className="txt-medium">
-        <form action={(a) => addPromotionCode(a)} className="w-full mb-5">
-          <Label className="flex gap-x-1 my-2 items-center">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              type="button"
-              className="txt-medium text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
-              data-testid="add-discount-button"
+        <form
+          action={(a) => addPromotionCode(a)}
+          className={alwaysOpen ? "w-full" : "w-full mb-5"}
+        >
+          {alwaysOpen ? (
+            <label
+              htmlFor="promotion-input"
+              className="mb-1.5 block text-sm font-medium text-navy"
             >
-              Add Promotion Code(s)
-            </button>
+              İndirim kodu
+            </label>
+          ) : (
+            <Label className="flex gap-x-1 my-2 items-center">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                type="button"
+                className="text-base text-navy hover:text-brand-ink"
+                data-testid="add-discount-button"
+              >
+                İndirim kodu ekle
+              </button>
 
-            {/* <Tooltip content="You can add multiple promotion codes">
+              {/* <Tooltip content="You can add multiple promotion codes">
               <InformationCircleSolid color="var(--fg-muted)" />
             </Tooltip> */}
-          </Label>
+            </Label>
+          )}
 
           {isOpen && (
             <>
               <div className="flex w-full gap-x-2">
-                <Input
-                  className="size-full"
-                  id="promotion-input"
-                  name="code"
-                  type="text"
-                  autoFocus={false}
-                  data-testid="discount-input"
-                />
+                {alwaysOpen ? (
+                  <input
+                    className="h-11 w-full rounded-xl border border-transparent bg-soft px-4 text-[15px] text-navy outline-none placeholder:text-navy/35 focus:border-navy/25 focus:bg-white"
+                    id="promotion-input"
+                    name="code"
+                    type="text"
+                    placeholder="Kodunuzu girin"
+                    data-testid="discount-input"
+                  />
+                ) : (
+                  <Input
+                    className="size-full"
+                    id="promotion-input"
+                    name="code"
+                    type="text"
+                    autoFocus={false}
+                    data-testid="discount-input"
+                  />
+                )}
                 <SubmitButton
                   variant="secondary"
+                  className={
+                    alwaysOpen
+                      ? "!h-11 !rounded-xl !border-navy/20 !bg-white !px-5 !text-navy !shadow-none"
+                      : undefined
+                  }
                   data-testid="discount-apply-button"
                 >
-                  Apply
+                  Uygula
                 </SubmitButton>
               </div>
 
@@ -103,7 +142,7 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
           <div className="w-full flex items-center">
             <div className="flex flex-col w-full">
               <Heading className="txt-medium mb-2">
-                Promotion(s) applied:
+                Uygulanan indirimler:
               </Heading>
 
               {promotions.map((promotion) => {
@@ -157,9 +196,7 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
                         data-testid="remove-discount-button"
                       >
                         <Trash size={14} />
-                        <span className="sr-only">
-                          Remove discount code from order
-                        </span>
+                        <span className="sr-only">İndirim kodunu kaldır</span>
                       </button>
                     )}
                   </div>

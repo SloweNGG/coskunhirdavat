@@ -3,6 +3,7 @@
 import { indexedCurrency, priceAttribute } from "@lib/search-client"
 import { convertToLocale } from "@lib/util/money"
 import { Text, clx } from "@modules/common/components/ui"
+import PriceText from "@modules/common/components/price-text"
 
 /** The per-currency price fields a hit may carry, e.g. `min_price_eur`. */
 export type HitPricing = Record<string, unknown>
@@ -40,14 +41,21 @@ const HitPrice = ({ hit, currencyCode }: HitPriceProps) => {
           className="text-sm line-through text-muted"
           data-testid="original-price"
         >
-          {format(original_price)}
+          <PriceText value={format(original_price)} />
         </Text>
       )}
       <Text
         className={clx("text-lg font-bold", on_sale ? "text-sale" : "text-navy")}
         data-testid="price"
       >
-        {isRange ? `${format(min_price)} - ${format(max)}` : format(min_price)}
+        {isRange ? (
+          <>
+            <PriceText value={format(min_price)} /> -{" "}
+            <PriceText value={format(max)} />
+          </>
+        ) : (
+          <PriceText value={format(min_price)} />
+        )}
       </Text>
     </div>
   )

@@ -11,7 +11,7 @@ const SectionHeading = ({
 }: {
   title: string
   subtitle?: string
-  /** Small mono label above the title, e.g. "01 / Kategoriler" */
+  /** Small mono label above the title, e.g. "Kategoriler" */
   eyebrow?: string
   href?: string
   linkLabel?: string

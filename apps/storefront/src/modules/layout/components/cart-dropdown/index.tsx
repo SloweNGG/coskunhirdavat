@@ -12,6 +12,7 @@ import { CART_UPDATED_EVENT } from "@lib/util/cart-events"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@modules/common/components/ui"
+import FreeShippingBar from "@modules/cart/components/free-shipping-bar"
 import DeleteButton from "@modules/common/components/delete-button"
 import LineItemOptions from "@modules/common/components/line-item-options"
 import LineItemPrice from "@modules/common/components/line-item-price"
@@ -19,6 +20,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import Thumbnail from "@modules/products/components/thumbnail"
 import { usePathname } from "next/navigation"
 import { Fragment, useEffect, useRef, useState } from "react"
+import PriceText from "@modules/common/components/price-text"
 
 const countItems = (cart?: HttpTypes.StoreCart | null) =>
   cart?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0
@@ -115,16 +117,13 @@ const CartDropdown = ({
             href="/cart"
             data-testid="nav-cart-link"
             aria-label={`Sepetim (${totalItems})`}
+            title="Sepetim"
           >
             <span className="relative">
               <ShoppingCart className="h-6 w-6" />
               <span className="absolute -right-2 -top-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-sale px-1 text-[10px] font-bold text-white">
                 {totalItems}
               </span>
-            </span>
-            <span className="hidden small:flex flex-col items-start leading-tight">
-              <span className="text-[11px] text-muted">Sepetim</span>
-              <span className="text-sm font-semibold">{totalItems} ürün</span>
             </span>
           </LocalizedClientLink>
         </PopoverButton>
@@ -226,12 +225,13 @@ const CartDropdown = ({
                       data-testid="cart-subtotal"
                       data-value={subtotal}
                     >
-                      {convertToLocale({
+                      <PriceText value={convertToLocale({
                         amount: subtotal,
                         currency_code: cartState.currency_code,
-                      })}
+                      })} />
                     </span>
                   </div>
+                  <FreeShippingBar cart={cartState} />
                   <LocalizedClientLink href="/cart" passHref>
                     <Button
                       className="w-full"

@@ -17,6 +17,7 @@ import useSearchSettled from "@lib/hooks/use-search-settled"
 import useToggleState from "@lib/hooks/use-toggle-state"
 import { PRODUCT_INDEX_NAME, searchClient } from "@lib/search-client"
 import { Text } from "@modules/common/components/ui"
+import SearchBar from "./bar"
 import SearchDrawer from "./drawer"
 import SearchHit, { ProductHit } from "./hit"
 
@@ -115,46 +116,28 @@ const SearchPanel = ({ onNavigate }: { onNavigate: () => void }) => {
   )
 }
 
-const Search = ({ variant = "icon" }: { variant?: "icon" | "bar" }) => {
+const Search = ({ variant = "icon" }: { variant?: "icon" | "bar" }) =>
+  variant === "bar" ? <SearchBar /> : <SearchIcon />
+
+const SearchIcon = () => {
   const { state: isOpen, open, close } = useToggleState()
   const { countryCode } = useParams<{ countryCode: string }>()
 
   return (
     <>
       {/* A real link so search works without JavaScript; with JS it opens the drawer instead. */}
-      {variant === "bar" ? (
-        <Link
-          href={`/${countryCode}/search`}
-          onClick={(event) => {
-            event.preventDefault()
-            open()
-          }}
-          aria-label="Ürün ara"
-          className="flex h-11 w-full items-center overflow-hidden rounded-lg border-2 border-brand bg-white text-left"
-          data-testid="nav-search-button"
-        >
-          <span className="flex-1 truncate px-4 text-sm text-muted">
-            Ürün, marka veya kategori ara...
-          </span>
-          <span className="flex h-full items-center gap-x-2 bg-brand px-5 text-sm font-semibold text-brand-fg">
-            <MagnifyingGlass />
-            Ara
-          </span>
-        </Link>
-      ) : (
-        <Link
-          href={`/${countryCode}/search`}
-          onClick={(event) => {
-            event.preventDefault()
-            open()
-          }}
-          aria-label="Ürün ara"
-          className="flex items-center text-navy hover:text-brand-ink"
-          data-testid="nav-search-button"
-        >
-          <MagnifyingGlass className="h-6 w-6" />
-        </Link>
-      )}
+      <Link
+        href={`/${countryCode}/search`}
+        onClick={(event) => {
+          event.preventDefault()
+          open()
+        }}
+        aria-label="Ürün ara"
+        className="flex items-center text-navy hover:text-brand-ink"
+        data-testid="nav-search-button"
+      >
+        <MagnifyingGlass className="h-6 w-6" />
+      </Link>
 
       <SearchDrawer isOpen={isOpen} close={close}>
         <InstantSearch

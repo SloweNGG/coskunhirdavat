@@ -5,6 +5,8 @@ import {
   createServiceZonesWorkflow,
   createShippingOptionsWorkflow,
   createTaxRegionsWorkflow,
+  updateRegionsWorkflow,
+  updateShippingOptionsWorkflow,
   updateStockLocationsWorkflow,
   updateStoresWorkflow,
   upsertVariantPricesWorkflow,
@@ -19,12 +21,19 @@ import { DEFAULT_REGION_STORE_POLICIES } from "../lib/region-store-policies"
  * - TRY as the default store currency (prices include KDV)
  * - "Türkiye" region with PayTR as the payment provider
  * - KDV tax region (20%)
- * - Türkiye shipping zone with a standard and a free-over-limit option
+ * - Türkiye shipping zone with a "Standart Kargo" option: SHIPPING_FEE_TRY, or free
+ *   when the cart item total (KDV dahil) reaches FREE_SHIPPING_THRESHOLD_TRY
  * - TRY prices on existing variants that lack one (demo data only, EUR x 40)
  */
 const PAYTR_PROVIDER_ID = "pp_paytr_paytr"
+// Medusa's built-in manual provider, shown to shoppers as "Havale / EFT"
+const BANK_TRANSFER_PROVIDER_ID = "pp_system_default"
+const REGION_PAYMENT_PROVIDERS = [PAYTR_PROVIDER_ID, BANK_TRANSFER_PROVIDER_ID]
 const KDV_RATE = 20
 const SHIPPING_FEE_TRY = 149.9
+// Amount confirmed by the owner (2026-11-21). Keep in sync with FREE_SHIPPING_THRESHOLD in
+// apps/storefront/src/lib/store-config.ts.
+const FREE_SHIPPING_THRESHOLD_TRY = 3000
 const DEMO_EUR_TO_TRY = 40
 
 export default async function setupTurkey({ container }: ExecArgs) {
@@ -74,7 +83,7 @@ export default async function setupTurkey({ container }: ExecArgs) {
             name: "Türkiye",
             currency_code: "try",
             countries: ["tr"],
-            payment_providers: [PAYTR_PROVIDER_ID],
+            payment_providers: REGION_PAYMENT_PROVIDERS,
             automatic_taxes: true,
             is_tax_inclusive: true,
             metadata: {
@@ -91,7 +100,13 @@ export default async function setupTurkey({ container }: ExecArgs) {
     region = { id: result[0].id }
     logger.info(`Created region Türkiye (${region.id})`)
   } else {
-    logger.info(`Region for TR already exists (${region.id}), skipping`)
+    await updateRegionsWorkflow(container).run({
+      input: {
+        selector: { id: region.id },
+        update: { payment_providers: REGION_PAYMENT_PROVIDERS },
+      },
+    })
+    logger.info(`Region for TR already exists (${region.id}), payment providers updated`)
   }
 
   await updateStoresWorkflow(container).run({
@@ -145,9 +160,9 @@ export default async function setupTurkey({ container }: ExecArgs) {
       },
     })
 
-    const hasZone = fulfillmentSet.service_zones?.some((z) => z?.name === "Türkiye")
+    let zoneId = fulfillmentSet.service_zones?.find((z) => z?.name === "Türkiye")?.id
 
-    if (!hasZone) {
+    if (!zoneId) {
       const { result } = await createServiceZonesWorkflow(container).run({
         input: {
           data: [
@@ -159,16 +174,40 @@ export default async function setupTurkey({ container }: ExecArgs) {
           ],
         },
       })
-      const zone = result[0]
+      zoneId = result[0].id
+      logger.info("Created Türkiye shipping zone")
+    }
 
+    // Flat fee, plus a 0 price that wins once item_total (tax-inclusive) reaches the threshold:
+    // a price with more matching rules beats one with fewer, then the lowest amount wins.
+    const freeRule = [
+      { attribute: "item_total", operator: "gte" as const, value: FREE_SHIPPING_THRESHOLD_TRY },
+    ]
+    const prices = [
+      { currency_code: "try", amount: SHIPPING_FEE_TRY },
+      { region_id: region.id, amount: SHIPPING_FEE_TRY },
+      { currency_code: "try", amount: 0, rules: freeRule },
+      { region_id: region.id, amount: 0, rules: freeRule },
+    ]
+
+    const { data: existingOptions } = await query.graph({
+      entity: "shipping_option",
+      fields: ["id"],
+      filters: { name: "Standart Kargo", service_zone_id: zoneId },
+    })
+
+    if (existingOptions[0]) {
+      // Passing prices replaces the option's existing flat-rate prices.
+      await updateShippingOptionsWorkflow(container).run({
+        input: [{ id: existingOptions[0].id, price_type: "flat", prices }],
+      })
+      logger.info(
+        `Updated Standart Kargo prices (free over ${FREE_SHIPPING_THRESHOLD_TRY} TRY)`
+      )
+    } else {
       const {
         data: [profile],
       } = await query.graph({ entity: "shipping_profile", fields: ["id"] })
-
-      const storeRules = [
-        { attribute: "enabled_in_store", value: "true", operator: "eq" as const },
-        { attribute: "is_return", value: "false", operator: "eq" as const },
-      ]
 
       await createShippingOptionsWorkflow(container).run({
         input: [
@@ -176,22 +215,22 @@ export default async function setupTurkey({ container }: ExecArgs) {
             name: "Standart Kargo",
             price_type: "flat",
             provider_id: "manual_manual",
-            service_zone_id: zone.id,
+            service_zone_id: zoneId,
             shipping_profile_id: profile.id,
             type: {
               label: "Standart",
               description: "1-3 iş gününde teslim.",
               code: "standart-tr",
             },
-            prices: [
-              { currency_code: "try", amount: SHIPPING_FEE_TRY },
-              { region_id: region!.id, amount: SHIPPING_FEE_TRY },
+            prices,
+            rules: [
+              { attribute: "enabled_in_store", value: "true", operator: "eq" },
+              { attribute: "is_return", value: "false", operator: "eq" },
             ],
-            rules: storeRules,
           },
         ],
       })
-      logger.info("Created Türkiye shipping zone and Standart Kargo option")
+      logger.info("Created Standart Kargo option")
     }
   }
 

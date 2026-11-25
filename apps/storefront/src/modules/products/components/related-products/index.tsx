@@ -1,6 +1,7 @@
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import { HttpTypes } from "@medusajs/types"
+import SectionHeading from "@modules/home/components/section-heading"
 import Product from "../product-preview"
 
 type RelatedProductsProps = {
@@ -18,52 +19,61 @@ export default async function RelatedProducts({
     return null
   }
 
-  // edit this function to define your related products logic
-  const queryParams: HttpTypes.StoreProductListParams = {}
+  // Same category first; fall back to collection and tags.
+  const queryParams: HttpTypes.StoreProductListParams = {
+    limit: 9,
+    fields: "*variants.calculated_price,+variants.sku,*categories",
+  }
   if (region?.id) {
     queryParams.region_id = region.id
   }
-  if (product.collection_id) {
+  const categoryIds = (product.categories ?? []).map((c) => c.id)
+  if (categoryIds.length) {
+    queryParams.category_id = categoryIds
+  } else if (product.collection_id) {
     queryParams.collection_id = [product.collection_id]
   }
-  if (product.tags) {
+  if (!categoryIds.length && product.tags?.length) {
     queryParams.tag_id = product.tags
       .map((t) => t.id)
       .filter(Boolean) as string[]
   }
   queryParams.is_giftcard = false
 
-  const products = await listProducts({
-    queryParams,
-    countryCode,
-  }).then(({ response }) => {
-    return response.products.filter(
-      (responseProduct) => responseProduct.id !== product.id
+  const fetchOthers = (params: HttpTypes.StoreProductListParams) =>
+    listProducts({ queryParams: params, countryCode }).then(({ response }) =>
+      response.products.filter((p) => p.id !== product.id).slice(0, 8)
     )
-  })
+
+  let products = await fetchOthers(queryParams)
+  if (!products.length) {
+    // nothing related found: show newest products instead of an empty section
+    products = await fetchOthers({
+      limit: 9,
+      fields: queryParams.fields,
+      region_id: queryParams.region_id,
+      order: "-created_at",
+    })
+  }
 
   if (!products.length) {
     return null
   }
 
   return (
-    <div className="product-page-constraint">
-      <div className="flex flex-col items-center text-center mb-16">
-        <span className="text-base-regular text-gray-600 mb-6">
-          Related products
-        </span>
-        <p className="text-2xl-regular text-ui-fg-base max-w-lg">
-          You might also want to check out these products.
-        </p>
-      </div>
-
-      <ul className="grid grid-cols-2 small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8">
-        {products.map((product) => (
-          <li key={product.id}>
-            <Product region={region} product={product} />
+    <section>
+      <SectionHeading
+        eyebrow="Benzer ürünler"
+        title="Bunlar da ilginizi çekebilir"
+        href={categoryIds.length ? `/categories/${product.categories![0].handle}` : "/store"}
+      />
+      <ul className="grid grid-cols-2 gap-3 small:grid-cols-4 small:gap-5">
+        {products.map((p) => (
+          <li key={p.id}>
+            <Product region={region} product={p} />
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   )
 }

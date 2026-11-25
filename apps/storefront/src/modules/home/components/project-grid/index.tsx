@@ -9,26 +9,23 @@ const ProjectGrid = () => {
     <section className="blueprint-light border-y border-line bg-brand-50/40">
       <div className="content-container py-10 small:py-14">
         <SectionHeading
-          eyebrow="02 / İşe göre alışveriş"
+          eyebrow="İşe göre alışveriş"
           title="Ne yapacaksınız?"
           subtitle="İşinizi seçin, gereken malzemelerin listesini ve adım adım ipuçlarını hazırlayalım"
           href="/projeler"
           linkLabel="Tüm işler"
         />
         <ul className="grid grid-cols-1 gap-3 xsmall:grid-cols-2 small:grid-cols-3 small:gap-4">
-          {PROJECTS.map((project, index) => (
+          {PROJECTS.map((project) => (
             <li key={project.slug}>
               <LocalizedClientLink
                 href={`/projeler/${project.slug}`}
                 className="group relative flex h-full items-start gap-4 rounded-xl border border-line bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
               >
-                <span className="absolute right-4 top-4 font-mono text-[11px] font-semibold text-navy/30">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-navy text-brand-bright transition-colors group-hover:bg-brand group-hover:text-brand-fg">
                   <StoreIcon name={project.icon} className="h-6 w-6" />
                 </span>
-                <span className="flex flex-col gap-1.5 pr-6">
+                <span className="flex flex-col gap-1.5">
                   <span className="text-base font-bold leading-snug text-navy">
                     {project.title}
                   </span>

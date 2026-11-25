@@ -20,8 +20,10 @@ export const buildProductStructuredData = ({
   region,
   countryCode,
   productUrl,
+  reviews,
 }: {
   product: HttpTypes.StoreProduct
+  reviews?: { count: number; average_rating: number }
   region: HttpTypes.StoreRegion
   countryCode: string
   productUrl: string
@@ -59,6 +61,15 @@ export const buildProductStructuredData = ({
   })
 
   const variants = getPricedVariants(product)
+  const aggregateRating = reviews?.count
+    ? {
+        "@type": "AggregateRating",
+        ratingValue: reviews.average_rating,
+        reviewCount: reviews.count,
+        bestRating: 5,
+        worstRating: 1,
+      }
+    : undefined
 
   if (variants.length <= 1) {
     return {
@@ -70,6 +81,7 @@ export const buildProductStructuredData = ({
       brand,
       sku: variants[0]?.sku || undefined,
       url: productUrl,
+      aggregateRating,
       offers: variants[0] ? buildOffer(variants[0], productUrl) : undefined,
     }
   }
@@ -83,6 +95,7 @@ export const buildProductStructuredData = ({
     brand,
     url: productUrl,
     productGroupID: product.id,
+    aggregateRating,
     variesBy: (product.options ?? []).map((option) => option.title),
     hasVariant: variants.map((variant) => {
       const variantUrl = `${productUrl}?v_id=${variant.id}`

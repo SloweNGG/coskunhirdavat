@@ -74,7 +74,7 @@ const AdyenPaymentButton = ({
       const checkout = await AdyenCheckout({
         clientKey,
         environment,
-        locale: "en-US",
+        locale: "tr-TR",
         countryCode: cart.billing_address?.country_code?.toUpperCase(),
         amount: {
           value: session.data?.amount as number,
@@ -105,7 +105,7 @@ const AdyenPaymentButton = ({
         onError: (error) => {
           // Closing a wallet's payment sheet isn't an error worth showing.
           if (error.name !== "CANCEL") {
-            setErrorMessage("Could not process the payment. Please try again.")
+            setErrorMessage("Ödeme işlenemedi. Lütfen tekrar deneyin.")
           }
         },
       })
@@ -130,7 +130,7 @@ const AdyenPaymentButton = ({
     }
 
     mount().catch(() => {
-      setErrorMessage("Could not load the payment methods.")
+      setErrorMessage("Ödeme yöntemleri yüklenemedi.")
     })
 
     return () => {
@@ -144,7 +144,7 @@ const AdyenPaymentButton = ({
   if (notReady) {
     return (
       <Button disabled size="large" data-testid={dataTestId}>
-        Place order
+        Siparişi tamamla
       </Button>
     )
   }

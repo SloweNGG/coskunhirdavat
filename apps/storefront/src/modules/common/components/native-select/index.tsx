@@ -17,7 +17,7 @@ export type NativeSelectProps = {
 
 const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(
   (
-    { placeholder = "Select...", defaultValue, className, children, ...props },
+    { placeholder = "Seçiniz...", defaultValue, className, children, ...props },
     ref
   ) => {
     const innerRef = useRef<HTMLSelectElement>(null)
@@ -42,7 +42,7 @@ const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(
           onFocus={() => innerRef.current?.focus()}
           onBlur={() => innerRef.current?.blur()}
           className={clx(
-            "relative flex items-center text-base-regular border border-ui-border-base bg-ui-bg-subtle rounded-md hover:bg-ui-bg-field-hover",
+            "relative flex h-11 items-center text-[15px] text-navy border border-transparent bg-soft rounded-xl hover:bg-grey-10 focus-within:border-navy/25 focus-within:bg-white",
             className,
             {
               "text-ui-fg-muted": isPlaceholder,
@@ -53,7 +53,7 @@ const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(
             ref={innerRef}
             defaultValue={defaultValue}
             {...props}
-            className="appearance-none flex-1 bg-transparent border-none px-4 py-2.5 transition-colors duration-150 outline-none "
+            className="appearance-none flex-1 h-full bg-transparent border-none px-4 transition-colors duration-150 outline-none "
           >
             <option disabled value="">
               {placeholder}

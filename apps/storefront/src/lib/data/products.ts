@@ -1,5 +1,6 @@
 "use server"
 
+import { PRODUCT_FIELDS } from "@lib/constants"
 import { sdk } from "@lib/config"
 import { OptionValueIds } from "@lib/util/product-option-filters"
 import { sortProducts } from "@lib/util/sort-products"
@@ -69,8 +70,7 @@ export const listProducts = async ({
           limit,
           offset,
           region_id: region?.id,
-          fields:
-            "*variants.calculated_price,+variants.inventory_quantity,*variants.images,*variants.options,+metadata,+tags,",
+          fields: PRODUCT_FIELDS,
           ...queryParams,
         },
         headers,
@@ -148,4 +148,39 @@ export const listProductsWithSort = async ({
     nextPage,
     queryParams,
   }
+}
+
+/**
+ * Prices for the logged-in customer (customer-group price lists such as "Usta").
+ * Product pages are static, so they show guest prices; the client calls this
+ * after hydration. Returns null for guests.
+ */
+export async function getCustomerVariantPrices(
+  productId: string,
+  countryCode: string
+): Promise<Record<
+  string,
+  HttpTypes.StoreProductVariant["calculated_price"]
+> | null> {
+  const headers = await getAuthHeaders()
+  if (!("authorization" in headers)) return null
+  const region = await getRegion(countryCode)
+  if (!region) return null
+
+  const { products } = await sdk.client.fetch<{
+    products: HttpTypes.StoreProduct[]
+  }>("/store/products", {
+    query: {
+      id: productId,
+      region_id: region.id,
+      fields: "id,*variants.calculated_price",
+    },
+    headers,
+    cache: "no-store",
+  })
+  const product = products[0]
+  if (!product) return null
+  return Object.fromEntries(
+    (product.variants ?? []).map((v) => [v.id, v.calculated_price])
+  )
 }

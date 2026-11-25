@@ -1,7 +1,9 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { PRODUCT_FIELDS } from "@lib/constants"
 import { listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
+import { getProductReviews } from "@lib/data/reviews"
 import ProductTemplate from "@modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
 import { isVariantInStock } from "@lib/util/inventory"
@@ -113,16 +115,23 @@ export default async function ProductPage(props: Props) {
 
   const pricedProduct = await listProducts({
     countryCode: params.countryCode,
-    queryParams: { handle: params.handle },
+    queryParams: {
+      handle: params.handle,
+      fields: `${PRODUCT_FIELDS}*categories`,
+    },
   }).then(({ response }) => response.products[0])
 
   if (!pricedProduct) {
     notFound()
   }
 
-  const origin = await getSiteOrigin()
+  const [origin, reviews] = await Promise.all([
+    getSiteOrigin(),
+    getProductReviews(pricedProduct.id),
+  ])
   const structuredData = buildProductStructuredData({
     product: pricedProduct,
+    reviews,
     region,
     countryCode: params.countryCode,
     productUrl: `${origin}/${params.countryCode}/products/${pricedProduct.handle}`,
@@ -139,6 +148,7 @@ export default async function ProductPage(props: Props) {
         product={pricedProduct}
         region={region}
         countryCode={params.countryCode}
+        reviews={reviews}
       />
     </>
   )

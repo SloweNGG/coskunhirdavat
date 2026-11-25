@@ -16,8 +16,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 
   return {
-    title: `Order #${order.display_id}`,
-    description: `View your order`,
+    title: `Sipariş #${order.display_id}`,
+    description: `Siparişinizi görüntüleyin`,
   }
 }
 
@@ -29,5 +29,19 @@ export default async function OrderDetailPage(props: Props) {
     notFound()
   }
 
-  return <OrderDetailsTemplate order={order} />
+  return (
+    <>
+      <div className="flex justify-end mb-4">
+        {/* Plain <a>: route handler streams the PDF from the backend */}
+        <a
+          href={`/api/invoice/${order.id}`}
+          className="rounded-md border border-line px-4 py-2 text-small-semi hover:bg-soft"
+          data-testid="download-invoice-link"
+        >
+          Faturayı indir
+        </a>
+      </div>
+      <OrderDetailsTemplate order={order} />
+    </>
+  )
 }

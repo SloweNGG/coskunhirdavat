@@ -1,121 +1,121 @@
 "use client"
 
-import Back from "@modules/common/icons/back"
-import FastDelivery from "@modules/common/icons/fast-delivery"
-import Refresh from "@modules/common/icons/refresh"
-
-import Accordion from "./accordion"
+import { ProductReviews as ProductReviewsData } from "@lib/data/reviews"
 import { HttpTypes } from "@medusajs/types"
+import { clx } from "@modules/common/components/ui"
+import { useState } from "react"
+import ProductReviews from "../product-reviews"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
 }
 
-const ProductTabs = ({ product }: ProductTabsProps) => {
-  const tabs = [
-    {
-      label: "Product Information",
-      component: <ProductInfoTab product={product} />,
-    },
-    {
-      label: "Shipping & Returns",
-      component: <ShippingInfoTab />,
-    },
+const ProductTabs = ({
+  product,
+  reviews,
+}: ProductTabsProps & { reviews: ProductReviewsData }) => {
+  const [active, setActive] = useState(0)
+  const TABS = [
+    "Ürün Özellikleri",
+    `Değerlendirmeler${reviews.count ? ` (${reviews.count})` : ""}`,
+    "Kargo ve İade",
+    "Ödeme Seçenekleri",
   ]
 
   return (
     <div className="w-full">
-      <Accordion type="multiple">
-        {tabs.map((tab, i) => (
-          <Accordion.Item
-            key={i}
-            title={tab.label}
-            headingSize="medium"
-            value={tab.label}
+      <div
+        role="tablist"
+        className="flex gap-x-6 overflow-x-auto no-scrollbar border-b border-line"
+      >
+        {TABS.map((label, i) => (
+          <button
+            key={label}
+            type="button"
+            role="tab"
+            id={`product-tab-${i}`}
+            aria-selected={i === active}
+            aria-controls={`product-panel-${i}`}
+            onClick={() => setActive(i)}
+            className={clx(
+              "-mb-px whitespace-nowrap border-b-2 py-3 text-sm font-semibold transition-colors",
+              i === active
+                ? "border-brand text-navy"
+                : "border-transparent text-muted hover:text-navy"
+            )}
           >
-            {tab.component}
-          </Accordion.Item>
+            {label}
+          </button>
         ))}
-      </Accordion>
+      </div>
+
+      <div
+        role="tabpanel"
+        id={`product-panel-${active}`}
+        aria-labelledby={`product-tab-${active}`}
+        className="py-6 text-sm leading-6 text-navy/80"
+      >
+        {active === 0 && <ProductInfoTab product={product} />}
+        {active === 1 && <ProductReviews productId={product.id} data={reviews} />}
+        {active === 2 && <ShippingInfoTab />}
+        {active === 3 && <PaymentInfoTab />}
+      </div>
     </div>
   )
 }
 
 const ProductInfoTab = ({ product }: ProductTabsProps) => {
+  const specs = [
+    ["Malzeme", product.material],
+    ["Menşei", product.origin_country?.toUpperCase()],
+    ["Tip", product.type?.value],
+    ["Ağırlık", product.weight ? `${product.weight} g` : null],
+    [
+      "Ölçüler",
+      product.length && product.width && product.height
+        ? `${product.length} x ${product.width} x ${product.height} mm`
+        : null,
+    ],
+  ].filter((row): row is [string, string] => !!row[1])
+
   return (
-    <div className="text-small-regular py-8">
-      <div className="grid grid-cols-2 gap-x-8">
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Material</span>
-            <p>{product.material ? product.material : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Country of origin</span>
-            <p>{product.origin_country ? product.origin_country : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Type</span>
-            <p>{product.type ? product.type.value : "-"}</p>
-          </div>
+    <div className="grid grid-cols-1 gap-8 small:grid-cols-[1fr_minmax(0,380px)]">
+      <p className="whitespace-pre-line" data-testid="product-description">
+        {product.description || "Bu ürün için açıklama eklenmemiş."}
+      </p>
+      {specs.length > 0 && (
+        <div>
+          <h3 className="mb-3 font-semibold text-navy">Teknik bilgiler</h3>
+          <dl className="overflow-hidden rounded-lg border border-line">
+            {specs.map(([label, value]) => (
+              <div
+                key={label}
+                className="grid grid-cols-2 gap-4 px-4 py-2.5 odd:bg-soft"
+              >
+                <dt className="text-muted">{label}</dt>
+                <dd className="font-medium text-navy">{value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Weight</span>
-            <p>{product.weight ? `${product.weight} g` : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Dimensions</span>
-            <p>
-              {product.length && product.width && product.height
-                ? `${product.length}L x ${product.width}W x ${product.height}H`
-                : "-"}
-            </p>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   )
 }
 
-const ShippingInfoTab = () => {
-  return (
-    <div className="text-small-regular py-8">
-      <div className="grid grid-cols-1 gap-y-8">
-        <div className="flex items-start gap-x-2">
-          <FastDelivery />
-          <div>
-            <span className="font-semibold">Fast delivery</span>
-            <p className="max-w-sm">
-              Your package will arrive in 3-5 business days at your pick up
-              location or in the comfort of your home.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-x-2">
-          <Refresh />
-          <div>
-            <span className="font-semibold">Simple exchanges</span>
-            <p className="max-w-sm">
-              Is the fit not quite right? No worries - we&apos;ll exchange your
-              product for a new one.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-x-2">
-          <Back />
-          <div>
-            <span className="font-semibold">Easy returns</span>
-            <p className="max-w-sm">
-              Just return your product and we&apos;ll refund your money. No
-              questions asked – we&apos;ll do our best to make sure your return
-              is hassle-free.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+const ShippingInfoTab = () => (
+  <ul className="flex max-w-2xl list-disc flex-col gap-2 pl-5">
+    <li>Siparişiniz hızla hazırlanır ve kargoya teslim edilir.</li>
+    <li>Ürün ihtiyacınızı karşılamadıysa değişim talebinde bulunabilirsiniz.</li>
+    <li>14 gün içinde iade hakkınız bulunur.</li>
+  </ul>
+)
+
+const PaymentInfoTab = () => (
+  <ul className="flex max-w-2xl list-disc flex-col gap-2 pl-5">
+    <li>Kredi ve banka kartıyla PayTR güvencesinde 3D Secure ödeme.</li>
+    <li>Kredi kartına taksit imkânı; taksit seçenekleri ödeme adımında gösterilir.</li>
+  </ul>
+)
 
 export default ProductTabs

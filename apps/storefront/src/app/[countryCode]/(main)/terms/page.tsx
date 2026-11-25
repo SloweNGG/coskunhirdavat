@@ -7,22 +7,17 @@ export const dynamic = "force-static"
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: "Terms of service",
-  description: `Terms that apply to purchases from ${STORE_NAME}.`,
+  title: "Kullanım Koşulları",
+  description: `${STORE_NAME} kullanım koşulları.`,
 }
 
 export default function TermsPage() {
   return (
-    <PolicyPage title="Terms of service">
+    <PolicyPage title="Kullanım Koşulları">
       <PlaceholderNotice />
       <p>
-        By placing an order with {STORE_NAME} you agree to these terms. Prices,
-        product availability and shipping options are shown on the product
-        pages and at checkout, and may change without notice.
-      </p>
-      <p>
-        Orders are confirmed by email once payment is received. Returns and
-        refunds are handled according to our return policy.
+        {STORE_NAME} üzerinden yapılan alışverişlere ilişkin koşullar yakında
+        bu sayfada yer alacaktır.
       </p>
     </PolicyPage>
   )

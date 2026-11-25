@@ -9,6 +9,8 @@ import OrderDetails from "@modules/order/components/order-details"
 import ShippingDetails from "@modules/order/components/shipping-details"
 import PaymentDetails from "@modules/order/components/payment-details"
 import { HttpTypes } from "@medusajs/types"
+import { isManual } from "@lib/constants"
+import BankTransferInfo from "@modules/checkout/components/bank-transfer-info"
 
 type OrderCompletedTemplateProps = {
   order: HttpTypes.StoreOrder
@@ -20,6 +22,9 @@ export default async function OrderCompletedTemplate({
   const cookies = await nextCookies()
 
   const isOnboarding = cookies.get("_medusa_onboarding")?.value === "true"
+  const paidByBankTransfer = !!order.payment_collections?.some((pc) =>
+    pc.payments?.some((p) => isManual(p.provider_id))
+  )
 
   return (
     <div className="py-6 min-h-[calc(100vh-64px)]">
@@ -33,12 +38,20 @@ export default async function OrderCompletedTemplate({
             level="h1"
             className="flex flex-col gap-y-3 text-ui-fg-base text-3xl mb-4"
           >
-            <span>Thank you!</span>
-            <span>Your order was placed successfully.</span>
+            <span>Teşekkür ederiz!</span>
+            <span>Siparişiniz başarıyla oluşturuldu.</span>
           </Heading>
           <OrderDetails order={order} />
+          {paidByBankTransfer && (
+            <div className="flex flex-col gap-y-3">
+              <Heading level="h2" className="text-2xl font-semibold text-navy">
+                Havale / EFT bilgileri
+              </Heading>
+              <BankTransferInfo orderNumber={order.display_id} />
+            </div>
+          )}
           <Heading level="h2" className="flex flex-row text-3xl-regular">
-            Summary
+            Özet
           </Heading>
           <Items order={order} />
           <CartTotals totals={order} />

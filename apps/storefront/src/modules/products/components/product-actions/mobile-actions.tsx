@@ -1,6 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react"
 import { Button, clx } from "@modules/common/components/ui"
-import React, { Fragment, useMemo } from "react"
+import React, { Fragment, useEffect, useMemo } from "react"
 
 import useToggleState from "@lib/hooks/use-toggle-state"
 import ChevronDown from "@modules/common/icons/chevron-down"
@@ -10,6 +10,7 @@ import { getProductPrice } from "@lib/util/get-product-price"
 import OptionSelect from "./option-select"
 import { HttpTypes } from "@medusajs/types"
 import { isSimpleProduct } from "@lib/util/product"
+import PriceText from "@modules/common/components/price-text"
 
 type MobileActionsProps = {
   product: HttpTypes.StoreProduct
@@ -36,6 +37,12 @@ const MobileActions: React.FC<MobileActionsProps> = ({
 }) => {
   const { state, open, close } = useToggleState()
 
+  // Lets the floating "Parça Bul" button step aside while this bar is shown.
+  useEffect(() => {
+    document.body.toggleAttribute("data-sticky-buy", show)
+    return () => document.body.removeAttribute("data-sticky-buy")
+  }, [show])
+
   const price = getProductPrice({
     product: product,
     variantId: variant?.id,
@@ -55,7 +62,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
   return (
     <>
       <div
-        className={clx("lg:hidden inset-x-0 bottom-0 fixed z-50", {
+        className={clx("lg:hidden inset-x-0 bottom-16 small:bottom-0 fixed z-50", {
           "pointer-events-none": !show,
         })}
       >
@@ -81,7 +88,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                   {selectedPrice.price_type === "sale" && (
                     <p>
                       <span className="line-through text-small-regular">
-                        {selectedPrice.original_price}
+                        <PriceText value={selectedPrice.original_price} />
                       </span>
                     </p>
                   )}
@@ -91,7 +98,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                         selectedPrice.price_type === "sale",
                     })}
                   >
-                    {selectedPrice.calculated_price}
+                    <PriceText value={selectedPrice.calculated_price} />
                   </span>
                 </div>
               ) : (
@@ -105,14 +112,14 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                 type="button"
                 onClick={open}
                 variant="secondary"
-                className="w-full"
+                className="w-full !rounded-full"
                 data-testid="mobile-actions-button"
               >
                 <div className="flex items-center justify-between w-full">
                   <span>
                     {variant
                       ? Object.values(options).join(" / ")
-                      : "Select Options"}
+                      : "Seçenek seçin"}
                   </span>
                   <ChevronDown />
                 </div>
@@ -121,15 +128,15 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                 type="button"
                 onClick={handleAddToCart}
                 disabled={!inStock || !variant}
-                className="w-full"
+                className="w-full !rounded-full"
                 isLoading={isAdding}
                 data-testid="mobile-cart-button"
               >
                 {!variant
-                  ? "Select variant"
+                  ? "Seçenek seçin"
                   : !inStock
-                  ? "Out of stock"
-                  : "Add to cart"}
+                  ? "Stokta yok"
+                  : "Sepete ekle"}
               </Button>
             </div>
           </div>
@@ -169,7 +176,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                       onClick={close}
                       className="bg-white w-12 h-12 rounded-full text-ui-fg-base flex justify-center items-center"
                       data-testid="close-modal-button"
-                      aria-label="Close"
+                      aria-label="Kapat"
                     >
                       <X />
                     </button>

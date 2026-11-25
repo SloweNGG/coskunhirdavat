@@ -1,6 +1,7 @@
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { clx } from "@modules/common/components/ui"
+import PriceText from "@modules/common/components/price-text"
 
 type LineItemUnitPriceProps = {
   item: HttpTypes.StoreCartLineItem | HttpTypes.StoreOrderLineItem
@@ -27,16 +28,16 @@ const LineItemUnitPrice = ({
         <>
           <p>
             {style === "default" && (
-              <span className="text-ui-fg-muted">Original: </span>
+              <span className="text-ui-fg-muted">Eski fiyat: </span>
             )}
             <span
               className="line-through"
               data-testid="product-unit-original-price"
             >
-              {convertToLocale({
+              <PriceText value={convertToLocale({
                 amount: original_total / item.quantity,
                 currency_code: currencyCode,
-              })}
+              })} />
             </span>
           </p>
           {style === "default" && (
@@ -50,10 +51,10 @@ const LineItemUnitPrice = ({
         })}
         data-testid="product-unit-price"
       >
-        {convertToLocale({
+        <PriceText value={convertToLocale({
           amount: total / item.quantity,
           currency_code: currencyCode,
-        })}
+        })} />
       </span>
     </div>
   )

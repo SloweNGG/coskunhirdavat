@@ -1,17 +1,20 @@
 import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import FreeShippingBadge, {
+  qualifiesForFreeShipping,
+} from "@modules/common/components/free-shipping-badge"
 import Thumbnail from "../thumbnail"
 import PreviewPrice from "./price"
 
-export default async function ProductPreview({
+export default function ProductPreview({
   product,
   isFeatured: _isFeatured,
   region: _region,
 }: {
   product: HttpTypes.StoreProduct
   isFeatured?: boolean
-  region: HttpTypes.StoreRegion
+  region?: HttpTypes.StoreRegion
 }) {
   const { cheapestPrice } = getProductPrice({
     product,
@@ -34,6 +37,9 @@ export default async function ProductPreview({
           <span className="absolute left-3 top-3 z-10 rounded bg-sale px-2 py-1 text-xs font-bold text-white">
             %{cheapestPrice.percentage_diff} İndirim
           </span>
+        )}
+        {qualifiesForFreeShipping(cheapestPrice?.calculated_price_number) && (
+          <FreeShippingBadge size="sm" className="absolute right-3 top-3 z-10" />
         )}
         <Thumbnail
           thumbnail={product.thumbnail}

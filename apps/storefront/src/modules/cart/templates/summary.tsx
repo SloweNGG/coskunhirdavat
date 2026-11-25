@@ -1,16 +1,10 @@
 "use client"
 
-import { Button, Heading } from "@modules/common/components/ui"
-
-import CartTotals from "@modules/common/components/cart-totals"
-import Divider from "@modules/common/components/divider"
-import DiscountCode from "@modules/checkout/components/discount-code"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { LockClosedSolid } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-
-type SummaryProps = {
-  cart: HttpTypes.StoreCart
-}
+import { CHECKOUT_CTA } from "@modules/checkout/components/cta-class"
+import CartTotals from "@modules/common/components/cart-totals"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 function getCheckoutStep(cart: HttpTypes.StoreCart) {
   if (!cart?.shipping_address?.address_1 || !cart.email) {
@@ -22,23 +16,30 @@ function getCheckoutStep(cart: HttpTypes.StoreCart) {
   }
 }
 
-const Summary = ({ cart }: SummaryProps) => {
+/** White summary card: totals, checkout and keep-shopping buttons. */
+const Summary = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   const step = getCheckoutStep(cart)
 
   return (
-    <div className="flex flex-col gap-y-4">
-      <Heading level="h2" className="text-[2rem] leading-[2.75rem]">
-        Summary
-      </Heading>
-      <DiscountCode cart={cart} />
-      <Divider />
+    <div className="flex flex-col gap-y-5 rounded-2xl border border-line bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <h2 className="text-lg font-semibold text-navy">Sipariş özeti</h2>
       <CartTotals totals={cart} />
-      <LocalizedClientLink
-        href={"/checkout?step=" + step}
-        data-testid="checkout-button"
-      >
-        <Button className="w-full h-10">Go to checkout</Button>
-      </LocalizedClientLink>
+      <div className="flex flex-col gap-y-3">
+        <LocalizedClientLink
+          href={"/checkout?step=" + step}
+          data-testid="checkout-button"
+          className={`flex items-center justify-center gap-2 ${CHECKOUT_CTA} !text-white`}
+        >
+          <LockClosedSolid />
+          Ödemeye geç
+        </LocalizedClientLink>
+        <LocalizedClientLink
+          href="/store"
+          className="flex h-12 items-center justify-center rounded-xl border border-line text-[15px] font-semibold text-navy hover:border-navy/40"
+        >
+          Alışverişe devam et
+        </LocalizedClientLink>
+      </div>
     </div>
   )
 }

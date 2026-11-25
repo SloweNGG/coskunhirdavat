@@ -1,39 +1,70 @@
+"use client"
+
 import { HttpTypes } from "@medusajs/types"
-import { Container } from "@modules/common/components/ui"
+import PlaceholderImage from "@modules/common/icons/placeholder-image"
+import { clx } from "@modules/common/components/ui"
 import Image from "next/image"
+import { useState } from "react"
 
 type ImageGalleryProps = {
   images: HttpTypes.StoreProductImage[]
 }
 
 const ImageGallery = ({ images }: ImageGalleryProps) => {
+  const [active, setActive] = useState(0)
+
+  const current = images[active] ?? images[0]
+
   return (
-    <div className="flex items-start relative">
-      <div className="flex flex-col flex-1 small:mx-16 gap-y-4">
-        {images.map((image, index) => {
-          return (
-            <Container
-              key={image.id}
-              className="relative aspect-[29/34] w-full overflow-hidden bg-ui-bg-subtle"
-              id={image.id}
-            >
-              {!!image.url && (
-                <Image
-                  src={image.url}
-                  priority={index <= 2 ? true : false}
-                  className="absolute inset-0 rounded-rounded"
-                  alt={`Product image ${index + 1}`}
-                  fill
-                  sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-                  style={{
-                    objectFit: "cover",
-                  }}
-                />
-              )}
-            </Container>
-          )
-        })}
+    <div className="flex flex-col gap-3">
+      <div className="relative aspect-square w-full overflow-hidden rounded-3xl bg-soft">
+        {current?.url ? (
+          <Image
+            key={current.id}
+            src={current.url}
+            priority
+            alt={`Ürün görseli ${active + 1}`}
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-contain p-6 mix-blend-multiply"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-soft">
+            <PlaceholderImage size={48} />
+          </div>
+        )}
       </div>
+
+      {images.length > 1 && (
+        <ul className="grid grid-cols-5 gap-3" aria-label="Ürün görselleri">
+          {images.map((image, index) => (
+            <li key={image.id}>
+              <button
+                type="button"
+                onClick={() => setActive(index)}
+                aria-label={`Görsel ${index + 1}`}
+                aria-current={index === active}
+                className={clx(
+                  "relative block aspect-square w-full overflow-hidden rounded-2xl border bg-soft transition-colors",
+                  index === active
+                    ? "border-brand ring-1 ring-brand"
+                    : "border-line hover:border-navy/40"
+                )}
+              >
+                {!!image.url && (
+                  <Image
+                    src={image.url}
+                    alt=""
+                    fill
+                    sizes="96px"
+                    className="object-contain p-1.5 mix-blend-multiply"
+                  />
+                )}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

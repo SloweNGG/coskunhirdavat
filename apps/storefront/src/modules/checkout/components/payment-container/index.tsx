@@ -8,7 +8,7 @@ import { getPaymentInfo, isManual } from "@lib/constants"
 import { getPaymentErrorMessage } from "@lib/util/payment-error"
 import SkeletonCardDetails from "@modules/skeletons/components/skeleton-card-details"
 import { PaymentElement } from "@stripe/react-stripe-js"
-import PaymentTest from "../payment-test"
+import BankTransferInfo from "../bank-transfer-info"
 import { StripeContext } from "../payment-wrapper/stripe-wrapper"
 
 type PaymentContainerProps = {
@@ -24,7 +24,6 @@ const PaymentContainer: React.FC<PaymentContainerProps> = ({
   disabled = false,
   children,
 }) => {
-  const isDevelopment = process.env.NODE_ENV === "development"
   const paymentInfo = getPaymentInfo(paymentProviderId)
 
   return (
@@ -46,17 +45,17 @@ const PaymentContainer: React.FC<PaymentContainerProps> = ({
           <Text className="text-base-regular">
             {paymentInfo?.title || paymentProviderId}
           </Text>
-          {isManual(paymentProviderId) && isDevelopment && (
-            <PaymentTest className="hidden small:block" />
-          )}
         </div>
         <span className="justify-self-end text-ui-fg-base">
           {paymentInfo?.icon}
         </span>
       </div>
-      {isManual(paymentProviderId) && isDevelopment && (
-        <PaymentTest className="small:hidden text-[10px]" />
-      )}
+      {isManual(paymentProviderId) &&
+        selectedPaymentOptionId === paymentProviderId && (
+          <div className="mt-4">
+            <BankTransferInfo />
+          </div>
+        )}
       {children}
     </RadioGroupOption>
   )
@@ -86,7 +85,7 @@ export const StripePaymentContainer = ({
         (stripeReady ? (
           <div className="my-4 transition-all duration-150 ease-in-out">
             <Text className="txt-medium-plus text-ui-fg-base mb-1">
-              Enter your payment details:
+              Ödeme bilgilerinizi girin:
             </Text>
             <PaymentElement
               options={{ layout: "accordion" }}
@@ -102,7 +101,7 @@ export const StripePaymentContainer = ({
                 setPaymentComplete(false)
                 setError(
                   getPaymentErrorMessage(e.error) ??
-                    "Could not load the payment methods."
+                    "Ödeme yöntemleri yüklenemedi."
                 )
               }}
             />
