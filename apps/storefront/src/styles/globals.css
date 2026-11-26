@@ -3,6 +3,62 @@
 @import "tailwindcss/utilities";
 
 /*
+ * Font stacks. next/font (src/app/layout.tsx) sets --font-instrument-sans,
+ * --font-barlow and --font-jetbrains-mono on <html>; the rest of the CSS and
+ * Tailwind (font-sans / font-price / font-mono) only use these three.
+ * Fonts are self-hosted by next/font: no requests to Google at runtime.
+ */
+:root {
+  --font-sans: var(--font-instrument-sans), "Instrument Sans Fallback", Arial, sans-serif;
+  --font-price: var(--font-barlow), "Barlow Fallback", var(--font-sans);
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+/*
+ * @medusajs/ui-preset hard-codes "Inter" in its typography classes, but Inter
+ * is never loaded, so text using them fell back to the system font (checkout,
+ * order details, side menu, pagination). Plain CSS placed after the Tailwind
+ * imports, so it comes after (and wins over) the preset's component classes.
+ */
+.txt-xsmall,
+.txt-xsmall-plus,
+.txt-small,
+.txt-small-plus,
+.txt-medium,
+.txt-medium-plus,
+.txt-large,
+.txt-large-plus,
+.txt-xlarge,
+.txt-xlarge-plus,
+.txt-compact-xsmall,
+.txt-compact-xsmall-plus,
+.txt-compact-small,
+.txt-compact-small-plus,
+.txt-compact-medium,
+.txt-compact-medium-plus,
+.txt-compact-large,
+.txt-compact-large-plus,
+.txt-compact-xlarge,
+.txt-compact-xlarge-plus,
+.h1-core,
+.h2-core,
+.h3-core,
+.h1-docs,
+.h2-docs,
+.h3-docs,
+.h4-docs,
+.h1-webs,
+.h2-webs,
+.h3-webs,
+.h4-webs {
+  font-family: var(--font-sans);
+}
+
+.\!txt-medium {
+  font-family: var(--font-sans) !important;
+}
+
+/*
  * Store themes. The active one is set by STORE_THEME in src/lib/store-config.ts
  * (data-theme on <html>). Values are "R G B" so Tailwind opacity modifiers work.
  *   --brand       accent fill (buttons, badges, highlights)

@@ -6,7 +6,7 @@ import "styles/globals.css"
 
 const instrumentSans = Instrument_Sans({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-sans",
+  variable: "--font-instrument-sans",
   display: "swap",
 })
 
@@ -14,13 +14,13 @@ const instrumentSans = Instrument_Sans({
 const barlow = Barlow({
   subsets: ["latin", "latin-ext"],
   weight: ["500", "600", "700", "800"],
-  variable: "--font-price",
+  variable: "--font-barlow",
   display: "swap",
 })
 
 const jetBrainsMono = JetBrains_Mono({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-mono",
+  variable: "--font-jetbrains-mono",
   display: "swap",
 })
 

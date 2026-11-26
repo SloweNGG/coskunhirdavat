@@ -80,20 +80,11 @@ module.exports = {
       fontSize: {
         "3xl": "2rem",
       },
+      // Full stacks with fallbacks are defined once, in globals.css :root.
       fontFamily: {
-        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
-        price: ["var(--font-price)", "var(--font-sans)", "sans-serif"],
-        sans: [
-          "var(--font-sans)",
-          "Inter",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "Segoe UI",
-          "Roboto",
-          "Helvetica Neue",
-          "Ubuntu",
-          "sans-serif",
-        ],
+        mono: ["var(--font-mono)"],
+        price: ["var(--font-price)"],
+        sans: ["var(--font-sans)"],
       },
       keyframes: {
         ring: {
