@@ -49,7 +49,7 @@ export default function ProductPreview({
           className="!rounded-none !shadow-none !bg-soft"
         />
         <div className="flex flex-1 flex-col gap-2 border-t border-line p-4">
-          <div className="flex items-center justify-between gap-2 font-mono text-[10px] font-medium uppercase tracking-wider">
+          <div className="flex items-center justify-between gap-2 font-mono text-xs font-medium uppercase tracking-wider">
             {categoryName && <span className="truncate text-brand-ink">{categoryName}</span>}
             {sku && <span className="shrink-0 text-navy/40">#{sku}</span>}
           </div>

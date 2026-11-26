@@ -16,7 +16,7 @@ const Hero = () => {
           {/* Technical-drawing title block */}
           <dl
             aria-hidden
-            className="pointer-events-none absolute bottom-0 right-0 hidden grid-cols-[auto_auto] border-l border-t border-white/15 font-mono text-[10px] uppercase text-white/45 medium:grid"
+            className="pointer-events-none absolute bottom-0 right-0 hidden grid-cols-[auto_auto] border-l border-t border-white/15 font-mono text-xs uppercase text-white/45 medium:grid"
           >
             <dt className="border-b border-r border-white/15 px-3 py-1.5">Çizim No</dt>
             <dd className="border-b border-white/15 px-3 py-1.5 text-white/70">CH-001</dd>
