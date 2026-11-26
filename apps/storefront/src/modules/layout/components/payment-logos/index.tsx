@@ -43,11 +43,11 @@ const PaymentLogos = () => (
         className="h-4 w-auto opacity-70"
       />
     </li>
-    <li className={`${item} gap-1.5 text-xs font-semibold italic`}>
+    <li className={`${item} gap-1.5 text-xs font-semibold`}>
       <LockClosedSolid className="h-4 w-4" aria-hidden />
       256 Bit SSL
     </li>
-    <li className={`${item} gap-1.5 text-xs font-semibold italic`}>
+    <li className={`${item} gap-1.5 text-xs font-semibold`}>
       <ShieldCheck className="h-4 w-4" aria-hidden />
       3D Secure
     </li>
