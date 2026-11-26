@@ -27,7 +27,9 @@ export default async function ProductSection({
     queryParams: {
       limit,
       order,
-      fields: "*variants.calculated_price,+variants.sku,*categories",
+      // inventory_quantity lets the card offer WhatsApp when out of stock
+      fields:
+        "*variants.calculated_price,+variants.sku,+variants.inventory_quantity,*categories",
     },
   }).catch(() => ({ response: { products: [] as HttpTypes.StoreProduct[] } }))
 

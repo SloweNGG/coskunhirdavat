@@ -1,4 +1,3 @@
-import { Checkbox, Label } from "@modules/common/components/ui"
 import React from "react"
 
 type CheckboxProps = {
@@ -7,37 +6,37 @@ type CheckboxProps = {
   label: string
   name?: string
   id?: string
-  'data-testid'?: string
+  "data-testid"?: string
 }
 
+/**
+ * Native checkbox in the store's turquoise (same look as the contract
+ * consent box at checkout). Inside a form it submits "on" when ticked.
+ */
 const CheckboxWithLabel: React.FC<CheckboxProps> = ({
   checked = true,
   onChange,
   label,
   name,
   id = "checkbox",
-  'data-testid': dataTestId
+  "data-testid": dataTestId,
 }) => {
   return (
-    <div className="flex items-center space-x-2 ">
-      <Checkbox
-        className="text-base-regular flex items-center gap-x-2"
+    <label
+      htmlFor={id}
+      className="flex cursor-pointer items-center gap-x-2.5 text-sm text-navy"
+    >
+      <input
+        type="checkbox"
         id={id}
-        role="checkbox"
-        checked={checked}
-        readOnly
-        aria-checked={checked}
-        onClick={onChange}
         name={name}
+        checked={checked}
+        onChange={() => onChange?.()}
+        className="h-[18px] w-[18px] shrink-0 cursor-pointer accent-brand"
         data-testid={dataTestId}
       />
-      <Label
-        htmlFor={id}
-        className="!transform-none !txt-medium"
-      >
-        {label}
-      </Label>
-    </div>
+      {label}
+    </label>
   )
 }
 

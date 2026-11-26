@@ -1,25 +1,23 @@
 "use client"
 
-import * as Accordion from "@radix-ui/react-accordion"
-import { ChevronDownMini } from "@medusajs/icons"
-import clsx from "clsx"
-import { useState } from "react"
 import { useRefinementList } from "react-instantsearch"
 
 import { OPTION_VALUES_ATTRIBUTE } from "./attributes"
+import FacetList, { FacetItem } from "./facet-list"
+import FilterSection from "./filter-section"
 
 const FACET_LIMIT = 200
 
 type OptionGroup = {
   title: string
-  values: {
-    label: string
-    value: string
-    count: number
-    isRefined: boolean
-  }[]
+  values: FacetItem[]
 }
 
+// Number-aware, so "5 Adet" comes before "10 Adet" and "100 Adet".
+const compareLabels = (a: string, b: string) =>
+  a.localeCompare(b, "tr", { numeric: true, sensitivity: "base" })
+
+/** Splits the index's `Title:value` facet values into one group per option. */
 function groupItems(
   items: ReturnType<typeof useRefinementList>["items"]
 ): OptionGroup[] {
@@ -47,100 +45,47 @@ function groupItems(
     })
   }
 
-  return Array.from(groups.values())
+  const sorted = Array.from(groups.values()).sort((a, b) =>
+    compareLabels(a.title, b.title)
+  )
+  sorted.forEach((group) =>
+    group.values.sort((a, b) => compareLabels(a.label, b.label))
+  )
+
+  return sorted
 }
 
+/**
+ * One collapsed section per product option (Adet, Renk, Beden...). There can
+ * be many, so they start closed unless something in them is selected.
+ */
 const OptionRefinements = () => {
   const { items, refine } = useRefinementList({
     attribute: OPTION_VALUES_ATTRIBUTE,
     limit: FACET_LIMIT,
-    // Alphabetical keeps a size or colour list stable as counts move around.
     sortBy: ["name:asc"],
     operator: "and",
   })
-  const [closedGroups, setClosedGroups] = useState<string[]>([])
 
   const groups = groupItems(items)
 
-  if (!groups.length) {
-    return null
-  }
-
   return (
-    <Accordion.Root
-      type="multiple"
-      value={groups
-        .map((group) => group.title)
-        .filter((title) => !closedGroups.includes(title))}
-      onValueChange={(openTitles) =>
-        setClosedGroups(
-          groups
-            .map((group) => group.title)
-            .filter((title) => !openTitles.includes(title))
-        )
-      }
-      className="flex flex-col gap-y-3 pr-6"
-    >
-      {groups.map((group) => {
-        const isOpen = !closedGroups.includes(group.title)
-        const selectedCount = group.values.filter(
-          (value) => value.isRefined
-        ).length
-
-        return (
-          <Accordion.Item
-            key={group.title}
-            value={group.title}
-            className="overflow-hidden"
-          >
-            <Accordion.Header>
-              <Accordion.Trigger className="flex w-full items-center justify-between py-3 text-left">
-                <div className="flex items-center gap-2">
-                  <span className="txt-compact-small-plus text-ui-fg-base">
-                    {group.title}
-                  </span>
-                  <span className="txt-compact-small-plus text-ui-fg-muted">
-                    ({selectedCount})
-                  </span>
-                </div>
-                <span
-                  className={clsx(
-                    "flex h-7 w-7 items-center justify-center text-ui-fg-muted transition-transform duration-150",
-                    { "rotate-180": isOpen }
-                  )}
-                >
-                  <ChevronDownMini />
-                </span>
-              </Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Content className="pb-4 pt-1">
-              <div className="flex flex-wrap gap-2">
-                {group.values.map((value) => (
-                  <button
-                    key={value.value}
-                    onClick={() => refine(value.value)}
-                    aria-pressed={value.isRefined}
-                    className={clsx(
-                      "border-ui-border-base border text-small-regular h-10 rounded-rounded px-3 flex items-center gap-x-1.5 transition-colors duration-150",
-                      {
-                        "border-ui-border-interactive text-ui-fg-base":
-                          value.isRefined,
-                        "text-ui-fg-muted hover:text-ui-fg-base":
-                          !value.isRefined,
-                      }
-                    )}
-                    data-testid="option-refinement"
-                  >
-                    {value.label}
-                    <span className="text-ui-fg-muted">({value.count})</span>
-                  </button>
-                ))}
-              </div>
-            </Accordion.Content>
-          </Accordion.Item>
-        )
-      })}
-    </Accordion.Root>
+    <>
+      {groups.map((group) => (
+        <FilterSection
+          key={group.title}
+          title={group.title}
+          selectedCount={group.values.filter((value) => value.isRefined).length}
+          defaultOpen={false}
+        >
+          <FacetList
+            items={group.values}
+            onToggle={refine}
+            data-testid="option-refinement"
+          />
+        </FilterSection>
+      ))}
+    </>
   )
 }
 

@@ -1,5 +1,6 @@
 import { Radio as RadioGroupOption } from "@headlessui/react"
 import { Text, clx } from "@modules/common/components/ui"
+import { optionClass } from "@modules/checkout/components/cta-class"
 import React, { useContext } from "react"
 
 import Radio from "@modules/common/components/radio"
@@ -25,6 +26,7 @@ const PaymentContainer: React.FC<PaymentContainerProps> = ({
   children,
 }) => {
   const paymentInfo = getPaymentInfo(paymentProviderId)
+  const selected = selectedPaymentOptionId === paymentProviderId
 
   return (
     <RadioGroupOption
@@ -32,21 +34,31 @@ const PaymentContainer: React.FC<PaymentContainerProps> = ({
       value={paymentProviderId}
       disabled={disabled}
       className={clx(
-        "flex flex-col gap-y-2 text-small-regular cursor-pointer py-4 border rounded-rounded px-8 mb-2 hover:shadow-borders-interactive-with-active",
-        {
-          "border-ui-border-interactive":
-            selectedPaymentOptionId === paymentProviderId,
-        }
+        optionClass(selected, disabled),
+        "flex-col !items-stretch"
       )}
     >
-      <div className="flex items-center justify-between ">
-        <div className="flex items-center gap-x-4">
-          <Radio checked={selectedPaymentOptionId === paymentProviderId} />
-          <Text className="text-base-regular">
-            {paymentInfo?.title || paymentProviderId}
-          </Text>
+      <div className="flex items-center justify-between gap-x-4">
+        <div className="flex min-w-0 items-center gap-x-3">
+          <Radio checked={selected} />
+          <div className="flex min-w-0 flex-col">
+            <span className="text-[15px] font-semibold text-navy">
+              {paymentInfo?.title || paymentProviderId}
+            </span>
+            {paymentInfo?.description && (
+              <span className="text-xs text-muted">
+                {paymentInfo.description}
+              </span>
+            )}
+          </div>
         </div>
-        <span className="justify-self-end text-ui-fg-base">
+        <span
+          className={clx(
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors",
+            selected ? "bg-white text-brand-ink" : "bg-soft text-navy/60"
+          )}
+          aria-hidden
+        >
           {paymentInfo?.icon}
         </span>
       </div>

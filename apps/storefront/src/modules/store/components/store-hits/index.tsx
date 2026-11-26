@@ -7,10 +7,16 @@ import { useHits, useInstantSearch } from "react-instantsearch"
 import useSearchSettled from "@lib/hooks/use-search-settled"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { Text } from "@modules/common/components/ui"
+import OutOfStockWhatsApp, {
+  OutOfStockBadge,
+  CardButtonLabel,
+  OUT_OF_STOCK_BUTTON_GAP,
+} from "@modules/products/components/out-of-stock-whatsapp"
 import Thumbnail from "@modules/products/components/thumbnail"
 import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
 import SearchPagination from "./pagination"
 import HitPrice, { HitPricing } from "./price"
+import { useOutOfStockHandles } from "./use-out-of-stock"
 import { priceAttribute } from "@lib/search-client"
 import FreeShippingBadge, {
   qualifiesForFreeShipping,
@@ -31,6 +37,7 @@ type StoreHitsProps = {
 
 const StoreHits = ({ hitsPerPage, currencyCode }: StoreHitsProps) => {
   const { items } = useHits<ProductHit>()
+  const outOfStock = useOutOfStockHandles(items.map((hit) => hit.handle))
   const { status, error, indexUiState } = useInstantSearch()
   const { isSearching, hasNoResultsYet } = useSearchSettled()
 
@@ -82,10 +89,10 @@ const StoreHits = ({ hitsPerPage, currencyCode }: StoreHitsProps) => {
         >
           {items.map((hit) =>
             hit.handle ? (
-              <li key={hit.objectID}>
+              <li key={hit.objectID} className="group relative">
                 <LocalizedClientLink
                   href={`/products/${hit.handle}`}
-                  className="group block h-full"
+                  className="block h-full"
                 >
                   <div
                     data-testid="product-wrapper"
@@ -98,6 +105,11 @@ const StoreHits = ({ hitsPerPage, currencyCode }: StoreHitsProps) => {
                         size="sm"
                         className="absolute right-3 top-3 z-10"
                       />
+                    )}
+                    {outOfStock.has(hit.handle) && (
+                      <span className="absolute left-3 top-3 z-10">
+                        <OutOfStockBadge />
+                      </span>
                     )}
                     <Thumbnail
                       thumbnail={hit.thumbnail}
@@ -115,12 +127,22 @@ const StoreHits = ({ hitsPerPage, currencyCode }: StoreHitsProps) => {
                         <HitPrice hit={hit} currencyCode={currencyCode} />
                         <span className="text-[11px] text-muted">KDV Dahil</span>
                       </div>
-                      <span className="mt-2 flex h-10 items-center justify-center rounded-md bg-brand text-sm font-semibold text-brand-fg transition-colors group-hover:bg-brand-dark">
-                        Ürünü İncele
+                      <span
+                        className={`mt-2 flex h-10 items-center justify-center whitespace-nowrap rounded-full bg-brand text-sm font-semibold text-brand-fg transition-colors group-hover:bg-brand-dark ${
+                          outOfStock.has(hit.handle)
+                            ? OUT_OF_STOCK_BUTTON_GAP
+                            : ""
+                        }`}
+                      >
+                        <CardButtonLabel outOfStock={outOfStock.has(hit.handle)} />
                       </span>
                     </div>
                   </div>
                 </LocalizedClientLink>
+                {/* beside the card link, not inside it (no nested links) */}
+                {outOfStock.has(hit.handle) && (
+                  <OutOfStockWhatsApp title={hit.title ?? ""} />
+                )}
               </li>
             ) : null
           )}

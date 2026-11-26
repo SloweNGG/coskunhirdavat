@@ -1,6 +1,13 @@
+import { ArrowLeft, LockClosedSolid, Phone } from "@medusajs/icons"
+import { STORE_INFO } from "@lib/store-config"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import ChevronDown from "@modules/common/icons/chevron-down"
+import Logo from "@modules/layout/components/logo"
 
+/**
+ * Checkout gets a quiet version of the store header: logo, a "secure
+ * payment" badge, the phone number and a way back to the cart. No search or
+ * category bar, so nothing pulls the shopper away from paying.
+ */
 export default function CheckoutLayout({
   children,
 }: {
@@ -8,31 +15,32 @@ export default function CheckoutLayout({
 }) {
   return (
     <div className="w-full bg-white relative small:min-h-screen">
-      <div className="h-16 bg-white border-b ">
-        <nav className="flex h-full items-center content-container justify-between">
-          <LocalizedClientLink
-            href="/cart"
-            className="text-small-semi text-ui-fg-base flex items-center gap-x-2 uppercase flex-1 basis-0"
-            data-testid="back-to-cart-link"
-          >
-            <ChevronDown className="rotate-90" size={16} />
-            <span className="mt-px hidden small:block txt-compact-plus text-ui-fg-subtle hover:text-ui-fg-base ">
+      <header className="border-b border-line bg-white">
+        <nav className="content-container flex h-16 items-center justify-between gap-x-4 small:h-20">
+          <Logo />
+          <div className="flex items-center gap-x-3 small:gap-x-6">
+            <a
+              href={STORE_INFO.phoneHref}
+              className="hidden items-center gap-x-1.5 text-sm font-semibold text-navy/70 hover:text-navy medium:flex"
+            >
+              <Phone className="text-brand-ink" aria-hidden />
+              {STORE_INFO.phone}
+            </a>
+            <span className="hidden items-center gap-x-1.5 rounded-full bg-brand-50 px-3.5 py-2 text-sm font-semibold text-brand-ink ring-1 ring-inset ring-brand-100 xsmall:flex">
+              <LockClosedSolid aria-hidden />
+              Güvenli ödeme
+            </span>
+            <LocalizedClientLink
+              href="/cart"
+              className="flex items-center gap-x-1.5 text-sm font-semibold text-navy hover:text-brand-ink"
+              data-testid="back-to-cart-link"
+            >
+              <ArrowLeft aria-hidden />
               Sepete dön
-            </span>
-            <span className="mt-px block small:hidden txt-compact-plus text-ui-fg-subtle hover:text-ui-fg-base">
-              Geri
-            </span>
-          </LocalizedClientLink>
-          <LocalizedClientLink
-            href="/"
-            className="txt-compact-xlarge-plus text-ui-fg-subtle hover:text-ui-fg-base uppercase"
-            data-testid="store-link"
-          >
-            Coşkun Hırdavat
-          </LocalizedClientLink>
-          <div className="flex-1 basis-0" />
+            </LocalizedClientLink>
+          </div>
         </nav>
-      </div>
+      </header>
       <div className="relative" data-testid="checkout-container">
         {children}
       </div>

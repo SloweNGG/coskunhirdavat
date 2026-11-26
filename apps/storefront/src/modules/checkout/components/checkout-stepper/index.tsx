@@ -12,7 +12,7 @@ const STEPS = [
   { key: "review", label: "Onay" },
 ]
 
-/** Horizontal progress bar: done steps get a green check, the current one a dot. */
+/** Horizontal progress capsule: done steps get a turquoise check, the current one its number in navy. */
 const CheckoutStepper = () => {
   const step = useSearchParams().get("step") ?? "address"
   const current = Math.max(
@@ -22,7 +22,7 @@ const CheckoutStepper = () => {
 
   return (
     <ol
-      className="flex items-center gap-x-2 rounded-2xl bg-soft px-4 py-3 text-xs font-medium xsmall:text-sm"
+      className="flex items-center gap-x-2 rounded-full border border-brand-100 bg-brand-50 px-4 py-2.5 text-xs font-semibold xsmall:px-5 xsmall:text-sm"
       aria-label="Ödeme adımları"
     >
       {STEPS.map((s, i) => {
@@ -34,32 +34,31 @@ const CheckoutStepper = () => {
               <li
                 aria-hidden
                 className={clx(
-                  "h-px min-w-3 flex-1",
-                  i <= current ? "bg-emerald-600" : "bg-navy/15"
+                  "h-0.5 min-w-3 flex-1 rounded-full",
+                  i <= current ? "bg-brand" : "bg-navy/15"
                 )}
               />
             )}
             <li
               className={clx(
                 "flex shrink-0 items-center gap-x-1.5",
-                done || active ? "text-navy" : "text-navy/40"
+                done || active ? "text-navy" : "text-navy/45"
               )}
               aria-current={active ? "step" : undefined}
             >
-              {done ? (
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-white">
-                  <CheckMini />
-                </span>
-              ) : (
-                <span
-                  className={clx(
-                    "flex h-5 w-5 items-center justify-center rounded-full border",
-                    active ? "border-navy" : "border-navy/25"
-                  )}
-                >
-                  {active && <span className="h-2 w-2 rounded-full bg-navy" />}
-                </span>
-              )}
+              <span
+                className={clx(
+                  "flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold",
+                  done && "bg-brand text-brand-fg",
+                  active && "bg-navy text-white",
+                  !done &&
+                    !active &&
+                    "bg-white text-navy/40 ring-1 ring-inset ring-navy/15"
+                )}
+                aria-hidden
+              >
+                {done ? <CheckMini /> : i + 1}
+              </span>
               <span
                 className={active ? undefined : "sr-only xsmall:not-sr-only"}
               >

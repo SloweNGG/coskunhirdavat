@@ -40,6 +40,13 @@ module.exports = {
           light: "rgb(var(--navy-light) / <alpha-value>)",
         },
         sale: "#C4301C",
+        // WhatsApp brand green; put dark text (text-navy) on it, white is unreadable.
+        // `ink` is the readable green for WhatsApp text links on white (5:1).
+        whatsapp: {
+          DEFAULT: "#25D366",
+          dark: "#1EBE5A",
+          ink: "#15803D",
+        },
         line: "#E5E5E5",
         muted: "#666666",
         soft: "#F6F6F6",
@@ -80,19 +87,11 @@ module.exports = {
       fontSize: {
         "3xl": "2rem",
       },
+      // Full stacks with fallbacks are defined once, in globals.css :root.
       fontFamily: {
-        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
-        sans: [
-          "var(--font-sans)",
-          "Inter",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "Segoe UI",
-          "Roboto",
-          "Helvetica Neue",
-          "Ubuntu",
-          "sans-serif",
-        ],
+        mono: ["var(--font-mono)"],
+        price: ["var(--font-price)"],
+        sans: ["var(--font-sans)"],
       },
       keyframes: {
         ring: {
@@ -108,6 +107,14 @@ module.exports = {
             opacity: "1",
             transform: "translateX(0)",
           },
+        },
+        "pane-in-left": {
+          "0%": { opacity: "0", transform: "translateX(-24px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        "pane-in-right": {
+          "0%": { opacity: "0", transform: "translateX(24px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
         },
         "fade-in-top": {
           "0%": {
@@ -164,11 +171,24 @@ module.exports = {
           "0%": { transform: "translateY(-100%)" },
           "100%": { transform: "translateY(0)" },
         },
+        // "23 Yıl" badge: light band crossing the gold digits, then a pause
+        "gold-shine": {
+          "0%": { transform: "translateX(0)" },
+          "30%, 100%": { transform: "translateX(110px)" },
+        },
+        // sparkle pops, turns and fades while the light passes it
+        "gold-twinkle": {
+          "0%, 100%": { opacity: "0", transform: "scale(0) rotate(0deg)" },
+          "7%": { opacity: "1", transform: "scale(1) rotate(45deg)" },
+          "15%": { opacity: "0", transform: "scale(0) rotate(90deg)" },
+        },
       },
       animation: {
         ring: "ring 2.2s cubic-bezier(0.5, 0, 0.5, 1) infinite",
         "fade-in-right":
           "fade-in-right 0.3s cubic-bezier(0.5, 0, 0.5, 1) forwards",
+        "pane-in-left": "pane-in-left 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
+        "pane-in-right": "pane-in-right 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
         "fade-in-top": "fade-in-top 0.2s cubic-bezier(0.5, 0, 0.5, 1) forwards",
         "fade-out-top":
           "fade-out-top 0.2s cubic-bezier(0.5, 0, 0.5, 1) forwards",
@@ -179,6 +199,8 @@ module.exports = {
         enter: "enter 200ms ease-out",
         "slide-in": "slide-in 1.2s cubic-bezier(.41,.73,.51,1.02)",
         leave: "leave 150ms ease-in forwards",
+        "gold-shine": "gold-shine 5s cubic-bezier(0.45, 0, 0.25, 1) infinite",
+        "gold-twinkle": "gold-twinkle 5s ease-in-out infinite both",
       },
     },
   },

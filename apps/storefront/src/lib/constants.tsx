@@ -4,11 +4,15 @@ import Ideal from "@modules/common/icons/ideal"
 import PayPal from "@modules/common/icons/paypal"
 import React from "react"
 
+type PaymentInfo = {
+  title: string
+  icon: React.JSX.Element
+  /** one line under the title in the checkout payment step */
+  description?: string
+}
+
 /* Map of payment provider_id to their title and icon. Add in any payment providers you want to use. */
-export const paymentInfoMap: Record<
-  string,
-  { title: string; icon: React.JSX.Element }
-> = {
+export const paymentInfoMap: Record<string, PaymentInfo> = {
   pp_stripe_stripe: {
     title: "Kredi kartı",
     icon: <CreditCard />,
@@ -28,10 +32,12 @@ export const paymentInfoMap: Record<
   pp_paytr_paytr: {
     title: "Kredi / Banka Kartı (PayTR)",
     icon: <CreditCard />,
+    description: "Visa, Mastercard, Troy · 3D Secure ile güvenli ödeme",
   },
   pp_system_default: {
     title: "Havale / EFT",
     icon: <BuildingsMini />,
+    description: "Siparişten sonra banka hesabımıza ödeme",
   },
   // Add more payment providers here
 }
@@ -58,7 +64,9 @@ const adyenInfo = {
   icon: <CreditCard />,
 }
 
-export const getPaymentInfo = (providerId?: string) => {
+export const getPaymentInfo = (
+  providerId?: string
+): PaymentInfo | undefined => {
   if (!providerId) {
     return undefined
   }

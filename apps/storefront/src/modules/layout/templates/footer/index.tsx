@@ -1,4 +1,10 @@
-import { Clock, Envelope, MapPin } from "@medusajs/icons"
+import {
+  ChatBubbleLeftRight,
+  Clock,
+  Envelope,
+  MapPin,
+  Phone,
+} from "@medusajs/icons"
 import { listCategories } from "@lib/data/categories"
 import { STORE_INFO } from "@lib/store-config"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -23,9 +29,42 @@ const CUSTOMER_LINKS = [
 ]
 
 const FooterHeading = ({ children }: { children: React.ReactNode }) => (
-  <h3 className="mb-4 text-sm font-semibold text-white">{children}</h3>
+  <h3 className="mb-5 text-xs font-semibold uppercase tracking-[0.14em] text-brand-bright">
+    {children}
+  </h3>
 )
 
+/** A footer link with a short accent line that grows in on hover. */
+const FooterLink = ({
+  href,
+  children,
+  "data-testid": dataTestId,
+}: {
+  href: string
+  children: React.ReactNode
+  "data-testid"?: string
+}) => (
+  <LocalizedClientLink
+    href={href}
+    className="group/link inline-flex items-center transition-colors hover:text-white"
+    data-testid={dataTestId}
+  >
+    <span className="mr-0 h-px w-0 bg-brand-bright transition-all duration-200 group-hover/link:mr-2 group-hover/link:w-3" />
+    {children}
+  </LocalizedClientLink>
+)
+
+const ContactIcon = ({ children }: { children: React.ReactNode }) => (
+  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-brand-bright ring-1 ring-white/10">
+    {children}
+  </span>
+)
+
+/**
+ * Site footer: a dark panel with rounded top corners. On the home page it
+ * tucks under the help band right above it (`data-footer-overlap`), so the
+ * band's colour, not the page's white, shows in the rounded corners.
+ */
 export default async function Footer() {
   const productCategories = await listCategories({
     fields: "id,name,handle,rank,parent_category_id",
@@ -37,100 +76,123 @@ export default async function Footer() {
     .slice(0, 8)
 
   return (
-    <footer className="w-full">
-      <div className="bg-navy text-white/70">
-        <div className="content-container grid grid-cols-1 gap-10 py-14 xsmall:grid-cols-2 medium:grid-cols-4">
-          <div>
-            <FooterHeading>Kategoriler</FooterHeading>
-            <ul
-              className="flex flex-col gap-2.5 text-sm"
-              data-testid="footer-categories"
+    <footer className="relative w-full overflow-hidden rounded-t-[40px] bg-navy text-white/65 [[data-footer-overlap]+&]:-mt-10">
+      {/* Soft accent glow in the top corner. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-24 -top-32 h-80 w-80 rounded-full bg-brand/20 blur-3xl"
+      />
+
+      <div className="content-container relative grid grid-cols-2 gap-x-8 gap-y-12 pb-12 pt-16 small:grid-cols-4 medium:grid-cols-[1.55fr_1fr_1fr_1fr_1.3fr]">
+        <div className="col-span-2 flex flex-col gap-5 small:col-span-4 medium:col-span-1">
+          <Logo inverted />
+          <p className="max-w-xs text-sm leading-relaxed">
+            {STORE_INFO.tagline}. Ölçü aletlerinden kaynak malzemelerine,
+            kaldırma ekipmanından ambalaja kadar atölye, şantiye ve depo için.
+          </p>
+          <div className="flex flex-wrap gap-2.5">
+            <a
+              href={STORE_INFO.phoneHref}
+              className="flex items-center gap-x-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/10"
             >
-              {topCategories.map((c) => (
-                <li key={c.id}>
-                  <LocalizedClientLink
-                    href={`/categories/${c.handle}`}
-                    className="hover:text-white"
-                    data-testid="category-link"
-                  >
-                    {c.name}
-                  </LocalizedClientLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <FooterHeading>Önemli Bilgiler</FooterHeading>
-            <ul className="flex flex-col gap-2.5 text-sm">
-              {INFO_LINKS.map((l) => (
-                <li key={l.label}>
-                  <LocalizedClientLink
-                    href={l.href}
-                    className="hover:text-white"
-                  >
-                    {l.label}
-                  </LocalizedClientLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <FooterHeading>Müşteri Hizmetleri</FooterHeading>
-            <ul className="flex flex-col gap-2.5 text-sm">
-              {CUSTOMER_LINKS.map((l) => (
-                <li key={l.label}>
-                  <LocalizedClientLink
-                    href={l.href}
-                    className="hover:text-white"
-                  >
-                    {l.label}
-                  </LocalizedClientLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <FooterHeading>Adres &amp; İletişim</FooterHeading>
-            <ul className="-mt-4 flex flex-col gap-3.5 text-sm">
-              <li className="flex items-start gap-x-3">
-                <MapPin className="mt-0.5 shrink-0 text-brand-bright" />
-                {STORE_INFO.address}
-              </li>
-              <li>
-                <a
-                  href={`mailto:${STORE_INFO.email}`}
-                  className="flex items-center gap-x-3 hover:text-white"
-                >
-                  <Envelope className="shrink-0 text-brand-bright" />
-                  {STORE_INFO.email}
-                </a>
-              </li>
-              <li className="flex items-start gap-x-3">
-                <Clock className="mt-0.5 shrink-0 text-brand-bright" />
-                <span className="flex flex-col">
-                  {STORE_INFO.workingHours.split(", ").map((line) => (
-                    <span key={line}>{line}</span>
-                  ))}
-                </span>
-              </li>
-            </ul>
-            <div className="mt-2">
-              <Logo inverted />
-            </div>
+              <Phone className="text-brand-bright" />
+              {STORE_INFO.phone}
+            </a>
+            <a
+              href={STORE_INFO.whatsappHref}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-x-2 rounded-full bg-whatsapp px-4 py-2 text-sm font-semibold text-navy transition-colors hover:bg-whatsapp-dark"
+            >
+              <ChatBubbleLeftRight />
+              WhatsApp
+            </a>
           </div>
         </div>
 
-        <div className="border-t border-white/10">
-          <div className="content-container flex flex-col small:flex-row items-start small:items-center justify-between gap-4 py-6 text-xs">
-            <p>
-              © {new Date().getFullYear()} {STORE_INFO.name}. Tüm hakları
-              saklıdır.
-            </p>
-            <PaymentLogos />
-          </div>
+        <div>
+          <FooterHeading>Kategoriler</FooterHeading>
+          <ul
+            className="flex flex-col gap-3 text-sm"
+            data-testid="footer-categories"
+          >
+            {topCategories.map((c) => (
+              <li key={c.id}>
+                <FooterLink
+                  href={`/categories/${c.handle}`}
+                  data-testid="category-link"
+                >
+                  {c.name}
+                </FooterLink>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <FooterHeading>Önemli Bilgiler</FooterHeading>
+          <ul className="flex flex-col gap-3 text-sm">
+            {INFO_LINKS.map((l) => (
+              <li key={l.label}>
+                <FooterLink href={l.href}>{l.label}</FooterLink>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <FooterHeading>Müşteri Hizmetleri</FooterHeading>
+          <ul className="flex flex-col gap-3 text-sm">
+            {CUSTOMER_LINKS.map((l) => (
+              <li key={l.label}>
+                <FooterLink href={l.href}>{l.label}</FooterLink>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Full width on phones, where half a column can't fit the email. */}
+        <div className="col-span-2 small:col-span-1">
+          <FooterHeading>Adres &amp; İletişim</FooterHeading>
+          <ul className="flex flex-col gap-4 text-sm">
+            <li className="flex items-start gap-x-3">
+              <ContactIcon>
+                <MapPin />
+              </ContactIcon>
+              <span className="pt-1.5 leading-snug">{STORE_INFO.address}</span>
+            </li>
+            <li>
+              <a
+                href={`mailto:${STORE_INFO.email}`}
+                className="flex items-center gap-x-3 transition-colors hover:text-white"
+              >
+                <ContactIcon>
+                  <Envelope />
+                </ContactIcon>
+                {STORE_INFO.email}
+              </a>
+            </li>
+            <li className="flex items-start gap-x-3">
+              <ContactIcon>
+                <Clock />
+              </ContactIcon>
+              <span className="flex flex-col pt-1.5 leading-snug">
+                {STORE_INFO.workingHours.split(", ").map((line) => (
+                  <span key={line}>{line}</span>
+                ))}
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="relative border-t border-white/10">
+        <div className="content-container flex flex-col items-start justify-between gap-4 py-6 text-xs small:flex-row small:items-center">
+          <p>
+            © {new Date().getFullYear()} {STORE_INFO.name}. Tüm hakları
+            saklıdır.
+          </p>
+          <PaymentLogos />
         </div>
       </div>
     </footer>

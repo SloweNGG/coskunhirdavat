@@ -3,20 +3,53 @@ import { setAddresses } from "@lib/data/cart"
 import useToggleState from "@lib/hooks/use-toggle-state"
 import compareAddresses from "@lib/util/compare-addresses"
 import { HttpTypes } from "@medusajs/types"
-import Divider from "@modules/common/components/divider"
-import { Heading, Text, clx } from "@modules/common/components/ui"
-import Spinner from "@modules/common/icons/spinner"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useActionState } from "react"
 import Checkbox from "@modules/common/components/checkbox"
+import { getInvoiceLines } from "@modules/order/components/invoice-details"
 import BillingAddress from "../billing_address"
-import InvoiceDetails from "@modules/order/components/invoice-details"
 import ErrorMessage from "../error-message"
 import InvoiceType from "../invoice-type"
 import ShippingAddress from "../shipping-address"
+import {
+  formatPhoneDigits,
+  localPhoneDigits,
+} from "../shipping-address/phone-input"
 import { SubmitButton } from "../submit-button"
-import StepTitle from "@modules/checkout/components/step-title"
+import StepCard, { StepInfo } from "@modules/checkout/components/step-card"
 import { CHECKOUT_CTA } from "@modules/checkout/components/cta-class"
+
+/** "+905321234567" -> "+90 532 123 45 67"; anything else unchanged. */
+const displayPhone = (phone?: string | null) => {
+  if (!phone) return ""
+  const digits = localPhoneDigits(phone)
+  return phone.startsWith("+90") && digits.length === 10
+    ? `+90 ${formatPhoneDigits(digits)}`
+    : phone
+}
+
+const AddressLines = ({
+  address,
+  showCountry,
+}: {
+  address: HttpTypes.StoreCartAddress
+  showCountry: boolean
+}) => (
+  <>
+    <p className="font-semibold">
+      {address.first_name} {address.last_name}
+    </p>
+    <p>
+      {address.address_1} {address.address_2}
+    </p>
+    <p>
+      {[address.postal_code, address.city, address.province]
+        .filter(Boolean)
+        .join(", ")}
+    </p>
+    {showCountry && <p>{address.country_code?.toUpperCase()}</p>}
+  </>
+)
 
 const Addresses = ({
   cart,
@@ -43,166 +76,91 @@ const Addresses = ({
 
   const [message, formAction] = useActionState(setAddresses, null)
 
+  // The Türkiye region has a single country, so "TR" adds nothing there.
+  const showCountry = (cart?.region?.countries?.length ?? 0) > 1
+  const invoiceLines = getInvoiceLines(cart?.metadata)
+
   return (
-    <div className="bg-white">
-      <div
-        className={clx(
-          "flex flex-row items-center justify-between mb-6",
-          isOpen && "hidden"
-        )}
-      >
-        <Heading level="h2" className="flex flex-row items-center">
-          <StepTitle step={1} title="Adres" done={!isOpen} />
-        </Heading>
-        {!isOpen && cart?.shipping_address && (
-          <Text>
-            <button
-              onClick={handleEdit}
-              className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
-              data-testid="edit-address-button"
-            >
-              Düzenle
-            </button>
-          </Text>
-        )}
-      </div>
+    <StepCard
+      step={1}
+      title="Adres"
+      state={isOpen ? "active" : cart?.shipping_address ? "done" : "upcoming"}
+      onEdit={!isOpen && cart?.shipping_address ? handleEdit : undefined}
+      editTestId="edit-address-button"
+    >
       {isOpen ? (
         <form action={formAction}>
-          <div className="pb-8">
-            <ShippingAddress customer={customer} cart={cart} />
+          <ShippingAddress customer={customer} cart={cart} />
 
-            <InvoiceType
-              cart={cart}
-              besideToggle={
-                <Checkbox
-                  id="same_as_billing"
-                  label="Fatura adresim teslimat adresimle aynı"
-                  name="same_as_billing"
-                  checked={sameAsBilling}
-                  onChange={toggleSameAsBilling}
-                  data-testid="billing-address-checkbox"
-                />
-              }
-            />
-            {!sameAsBilling && (
-              <div>
-                <h3 className="mb-4 mt-8 text-lg font-semibold text-navy">
-                  Fatura Adresi
-                </h3>
-                <BillingAddress cart={cart} />
-              </div>
-            )}
-            <SubmitButton
-              className={`mt-7 ${CHECKOUT_CTA}`}
-              data-testid="submit-address-button"
-            >
-              Teslimata devam et
-            </SubmitButton>
-            <ErrorMessage error={message} data-testid="address-error-message" />
-          </div>
+          <InvoiceType
+            cart={cart}
+            besideToggle={
+              <Checkbox
+                id="same_as_billing"
+                label="Fatura adresim teslimat adresimle aynı"
+                name="same_as_billing"
+                checked={sameAsBilling}
+                onChange={toggleSameAsBilling}
+                data-testid="billing-address-checkbox"
+              />
+            }
+          />
+          {!sameAsBilling && (
+            <div>
+              <h3 className="mb-4 mt-8 text-lg font-semibold text-navy">
+                Fatura Adresi
+              </h3>
+              <BillingAddress cart={cart} />
+            </div>
+          )}
+          <SubmitButton
+            className={`mt-7 ${CHECKOUT_CTA}`}
+            data-testid="submit-address-button"
+          >
+            Teslimata devam et
+          </SubmitButton>
+          <ErrorMessage error={message} data-testid="address-error-message" />
         </form>
-      ) : (
-        <div>
-          <div className="text-small-regular">
-            {cart && cart.shipping_address ? (
-              <div className="flex items-start gap-x-8">
-                <div className="flex items-start gap-x-1 w-full">
-                  <div
-                    className="flex flex-col w-1/3"
-                    data-testid="shipping-address-summary"
-                  >
-                    <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                      Teslimat adresi
-                    </Text>
-                    <Text className="txt-medium text-ui-fg-subtle">
-                      {cart.shipping_address.first_name}{" "}
-                      {cart.shipping_address.last_name}
-                    </Text>
-                    <Text className="txt-medium text-ui-fg-subtle">
-                      {cart.shipping_address.address_1}{" "}
-                      {cart.shipping_address.address_2}
-                    </Text>
-                    <Text className="txt-medium text-ui-fg-subtle">
-                      {[
-                        cart.shipping_address.postal_code,
-                        cart.shipping_address.city,
-                        cart.shipping_address.province,
-                      ]
-                        .filter(Boolean)
-                        .join(", ")}
-                    </Text>
-                    <Text className="txt-medium text-ui-fg-subtle">
-                      {cart.shipping_address.country_code?.toUpperCase()}
-                    </Text>
-                  </div>
+      ) : cart?.shipping_address ? (
+        <div className="grid grid-cols-1 gap-5 xsmall:grid-cols-2">
+          <StepInfo
+            label="Teslimat adresi"
+            data-testid="shipping-address-summary"
+          >
+            <AddressLines
+              address={cart.shipping_address}
+              showCountry={showCountry}
+            />
+          </StepInfo>
 
-                  <div
-                    className="flex flex-col w-1/3 "
-                    data-testid="shipping-contact-summary"
-                  >
-                    <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                      İletişim
-                    </Text>
-                    <Text className="txt-medium text-ui-fg-subtle">
-                      {cart.shipping_address.phone}
-                    </Text>
-                    <Text className="txt-medium text-ui-fg-subtle">
-                      {cart.email}
-                    </Text>
-                  </div>
+          <StepInfo label="İletişim" data-testid="shipping-contact-summary">
+            <p>{displayPhone(cart.shipping_address.phone)}</p>
+            <p>{cart.email}</p>
+          </StepInfo>
 
-                  <div
-                    className="flex flex-col w-1/3"
-                    data-testid="billing-address-summary"
-                  >
-                    <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                      Fatura adresi
-                    </Text>
-
-                    {sameAsBilling ? (
-                      <Text className="txt-medium text-ui-fg-subtle">
-                        Fatura adresi teslimat adresiyle aynı.
-                      </Text>
-                    ) : (
-                      <>
-                        <Text className="txt-medium text-ui-fg-subtle">
-                          {cart.billing_address?.first_name}{" "}
-                          {cart.billing_address?.last_name}
-                        </Text>
-                        <Text className="txt-medium text-ui-fg-subtle">
-                          {cart.billing_address?.address_1}{" "}
-                          {cart.billing_address?.address_2}
-                        </Text>
-                        <Text className="txt-medium text-ui-fg-subtle">
-                          {[
-                            cart.billing_address?.postal_code,
-                            cart.billing_address?.city,
-                            cart.billing_address?.province,
-                          ]
-                            .filter(Boolean)
-                            .join(", ")}
-                        </Text>
-                        <Text className="txt-medium text-ui-fg-subtle">
-                          {cart.billing_address?.country_code?.toUpperCase()}
-                        </Text>
-                      </>
-                    )}
-                    <div className="mt-4">
-                      <InvoiceDetails metadata={cart.metadata} />
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <StepInfo label="Fatura adresi" data-testid="billing-address-summary">
+            {sameAsBilling || !cart.billing_address ? (
+              <p>Teslimat adresiyle aynı</p>
             ) : (
-              <div>
-                <Spinner />
-              </div>
+              <AddressLines
+                address={cart.billing_address}
+                showCountry={showCountry}
+              />
             )}
-          </div>
+          </StepInfo>
+
+          {invoiceLines && (
+            <StepInfo label="Fatura türü" data-testid="invoice-summary">
+              {invoiceLines.map((line, i) => (
+                <p key={i} className={i === 0 ? "font-semibold" : undefined}>
+                  {line}
+                </p>
+              ))}
+            </StepInfo>
+          )}
         </div>
-      )}
-      <Divider className="mt-8" />
-    </div>
+      ) : null}
+    </StepCard>
   )
 }
 

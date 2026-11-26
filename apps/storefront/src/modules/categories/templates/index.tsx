@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
-import InteractiveLink from "@modules/common/components/interactive-link"
 import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
 import RefinementList from "@modules/store/components/refinement-list"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
@@ -39,6 +38,13 @@ export default function CategoryTemplate({
 
   getParents(category)
 
+  // The store API also returns hidden (empty) subcategories, with an
+  // is_active the store type doesn't declare. Leave them out so this page
+  // links only to what the navbar shows.
+  const subcategories = (category.category_children ?? [])
+    .filter((c) => (c as { is_active?: boolean }).is_active !== false)
+    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+
   return (
     <div
       className="flex flex-col small:flex-row small:items-start py-6 content-container"
@@ -71,18 +77,19 @@ export default function CategoryTemplate({
             <p>{category.description}</p>
           </div>
         )}
-        {category.category_children && (
-          <div className="mb-8 text-base-large">
-            <ul className="grid grid-cols-1 gap-2">
-              {category.category_children?.map((c) => (
-                <li key={c.id}>
-                  <InteractiveLink href={`/categories/${c.handle}`}>
-                    {c.name}
-                  </InteractiveLink>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {subcategories.length > 0 && (
+          <ul className="mb-8 flex flex-wrap gap-2">
+            {subcategories.map((c) => (
+              <li key={c.id}>
+                <LocalizedClientLink
+                  href={`/categories/${c.handle}`}
+                  className="inline-flex items-center rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-navy transition-colors hover:border-brand hover:text-brand-ink"
+                >
+                  {c.name}
+                </LocalizedClientLink>
+              </li>
+            ))}
+          </ul>
         )}
         <Suspense
           fallback={

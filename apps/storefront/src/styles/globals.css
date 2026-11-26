@@ -3,6 +3,64 @@
 @import "tailwindcss/utilities";
 
 /*
+ * Font stacks. next/font (src/app/layout.tsx) sets --font-instrument-sans and
+ * --font-jetbrains-mono on <html>; the rest of the CSS and Tailwind
+ * (font-sans / font-price / font-mono) only use these three stacks.
+ * Prices use the main font (owner, 2026-11-26); --font-price stays as its own
+ * stack so a price font can come back with a one-line change.
+ * Fonts are self-hosted by next/font: no requests to Google at runtime.
+ */
+:root {
+  --font-sans: var(--font-instrument-sans), "Instrument Sans Fallback", Arial, sans-serif;
+  --font-price: var(--font-sans);
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+/*
+ * @medusajs/ui-preset hard-codes "Inter" in its typography classes, but Inter
+ * is never loaded, so text using them fell back to the system font (checkout,
+ * order details, side menu, pagination). Plain CSS placed after the Tailwind
+ * imports, so it comes after (and wins over) the preset's component classes.
+ */
+.txt-xsmall,
+.txt-xsmall-plus,
+.txt-small,
+.txt-small-plus,
+.txt-medium,
+.txt-medium-plus,
+.txt-large,
+.txt-large-plus,
+.txt-xlarge,
+.txt-xlarge-plus,
+.txt-compact-xsmall,
+.txt-compact-xsmall-plus,
+.txt-compact-small,
+.txt-compact-small-plus,
+.txt-compact-medium,
+.txt-compact-medium-plus,
+.txt-compact-large,
+.txt-compact-large-plus,
+.txt-compact-xlarge,
+.txt-compact-xlarge-plus,
+.h1-core,
+.h2-core,
+.h3-core,
+.h1-docs,
+.h2-docs,
+.h3-docs,
+.h4-docs,
+.h1-webs,
+.h2-webs,
+.h3-webs,
+.h4-webs {
+  font-family: var(--font-sans);
+}
+
+.\!txt-medium {
+  font-family: var(--font-sans) !important;
+}
+
+/*
  * Store themes. The active one is set by STORE_THEME in src/lib/store-config.ts
  * (data-theme on <html>). Values are "R G B" so Tailwind opacity modifiers work.
  *   --brand       accent fill (buttons, badges, highlights)
@@ -64,6 +122,38 @@
   --navy-light: 14 58 76;
 }
 
+/*
+ * Scrollbars in the store's turquoise on a clear track (owner, 2026-11-26).
+ * scrollbar-color is inherited, so inner scroll areas (menus, gallery) match.
+ * Safari has no scrollbar-color and uses the ::-webkit-scrollbar rules;
+ * .no-scrollbar (below) still hides them where wanted.
+ */
+html {
+  scrollbar-color: rgb(var(--brand)) transparent;
+}
+
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--brand));
+    background-clip: padding-box;
+    border: 3px solid transparent;
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(var(--brand-dark));
+  }
+}
+
 @layer utilities {
   /* Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
@@ -79,12 +169,15 @@
     scrollbar-width: none; /* Firefox */
   }
 
-  input:focus ~ label,
-  input:not(:placeholder-shown) ~ label {
+  /* Starter's floating-label rule. Radios and checkboxes have no placeholder,
+     so without the :not() it shrank and lifted every label next to them
+     (product option chips, checkout checkboxes). */
+  input:not([type="radio"]):not([type="checkbox"]):focus ~ label,
+  input:not([type="radio"]):not([type="checkbox"]):not(:placeholder-shown) ~ label {
     @apply -translate-y-3 text-xsmall-regular;
   }
 
-  input:focus ~ label {
+  input:not([type="radio"]):not([type="checkbox"]):focus ~ label {
     @apply left-0;
   }
 
@@ -112,35 +205,64 @@
 }
 
 @layer components {
-  /* Signature: tape-measure ticks. Tick color follows the text color. */
-  .tape-ticks {
-    background-image: linear-gradient(90deg, currentColor 1px, transparent 1px),
-      linear-gradient(90deg, currentColor 1px, transparent 1px),
-      linear-gradient(90deg, currentColor 1px, transparent 1px);
-    background-size: 8px 5px, 40px 9px, 80px 13px;
-    background-repeat: repeat-x;
-    background-position: left bottom;
-  }
-
-  /* Signature: blueprint / engineering-paper grid. */
-  .blueprint-dark {
-    background-image: linear-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(255 255 255 / 0.05) 1px, transparent 1px),
-      linear-gradient(rgb(255 255 255 / 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px);
-    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
-  }
-
-  .blueprint-light {
-    background-image: linear-gradient(rgb(var(--brand) / 0.09) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(var(--brand) / 0.09) 1px, transparent 1px),
-      linear-gradient(rgb(var(--brand) / 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(var(--brand) / 0.04) 1px, transparent 1px);
-    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
-  }
-
   .content-container {
     @apply max-w-[1440px] w-full mx-auto px-6;
+  }
+
+  /*
+   * Premium hover glow: a soft brand-coloured light under the content and a
+   * brighter rim on the border, both centred on the pointer. A pointermove
+   * handler sets --glow-x / --glow-y on the element (see category-bar);
+   * without it the light sits in the middle. Rounded corners come from the
+   * element itself (border-radius: inherit).
+   */
+  .glow-card {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .glow-card::before,
+  .glow-card::after {
+    content: "";
+    position: absolute;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 250ms ease-out;
+  }
+
+  /* Light wash behind the content (negative z-index stays above the card's own background). */
+  .glow-card::before {
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      220px circle at var(--glow-x, 50%) var(--glow-y, 50%),
+      rgb(var(--brand-light) / 0.16),
+      transparent 70%
+    );
+  }
+
+  /* Bright rim: the same light, masked down to a 1px ring over the border. */
+  .glow-card::after {
+    inset: -1px;
+    padding: 1px;
+    background: radial-gradient(
+      140px circle at var(--glow-x, 50%) var(--glow-y, 50%),
+      rgb(var(--brand-light) / 0.9),
+      transparent 70%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .glow-card:hover::before,
+  .glow-card:hover::after,
+  .glow-card:focus-visible::before,
+  .glow-card:focus-visible::after {
+    opacity: 1;
   }
 
   .contrast-btn {
@@ -226,4 +348,20 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .fs-fill, .fs-pop { animation: none; }
+}
+
+/* Floating WhatsApp button: on phones and tablets it fades out while the
+   product page's sticky add-to-cart bar ([data-sticky-bar]) is up. */
+@media (max-width: 1023.98px) {
+  body:has([data-sticky-bar]) .whatsapp-fab {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+  }
+}
+
+/* Home hero slider: the active dot fills up; the slide changes when it is full. */
+@keyframes hero-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }

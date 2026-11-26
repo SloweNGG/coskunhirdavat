@@ -38,6 +38,7 @@ module.exports = defineConfig({
     { resolve: './src/modules/product-review' },
     { resolve: './src/modules/quote' },
     { resolve: './src/modules/restock' },
+    { resolve: './src/modules/hero-slide' },
     {
       // Email via Resend when RESEND_API_KEY is set, otherwise logged to the console.
       // Overriding providers drops the default `feed` provider, so it is re-added.

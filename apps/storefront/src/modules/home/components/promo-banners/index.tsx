@@ -27,7 +27,7 @@ const PromoBanners = () => {
           href={STORE_INFO.whatsappHref}
           target="_blank"
           rel="noreferrer"
-          className="group relative flex items-center gap-6 overflow-hidden rounded-xl bg-brand p-8 text-brand-fg"
+          className="group relative flex items-center gap-6 overflow-hidden rounded-xl bg-whatsapp p-8 text-navy transition-colors hover:bg-whatsapp-dark"
         >
           <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-black/10">
             <ChatBubbleLeftRight className="h-8 w-8" />

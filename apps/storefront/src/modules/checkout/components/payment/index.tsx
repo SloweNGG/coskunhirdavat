@@ -1,24 +1,17 @@
 "use client"
 import { RadioGroup } from "@headlessui/react"
-import { getPaymentInfo, isStripeLike } from "@lib/constants"
+import { getPaymentInfo, isManual, isStripeLike } from "@lib/constants"
 import { initiatePaymentSession } from "@lib/data/cart"
 import { CreditCard } from "@medusajs/icons"
 import ErrorMessage from "@modules/checkout/components/error-message"
 import PaymentContainer, {
   StripePaymentContainer,
 } from "@modules/checkout/components/payment-container"
-import Divider from "@modules/common/components/divider"
-import {
-  Button,
-  Container,
-  Heading,
-  Text,
-  clx,
-} from "@modules/common/components/ui"
+import { Button } from "@modules/common/components/ui"
 import { HttpTypes } from "@medusajs/types"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
-import StepTitle from "@modules/checkout/components/step-title"
+import StepCard, { StepInfo } from "@modules/checkout/components/step-card"
 import { CHECKOUT_CTA } from "@modules/checkout/components/cta-class"
 
 const Payment = ({
@@ -116,144 +109,104 @@ const Payment = ({
     setError(null)
   }, [isOpen])
 
+  const activeInfo = getPaymentInfo(activeSession?.provider_id)
+
   return (
-    <div className="bg-white">
-      <div className="flex flex-row items-center justify-between mb-6">
-        <Heading
-          level="h2"
-          className={clx("flex flex-row items-center", {
-            "opacity-50 pointer-events-none select-none":
-              !isOpen && !paymentReady,
-          })}
-        >
-          <StepTitle step={3} title="Ödeme" done={!isOpen && paymentReady} />
-        </Heading>
-        {!isOpen && paymentReady && (
-          <Text>
-            <button
-              onClick={handleEdit}
-              className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
-              data-testid="edit-payment-button"
-            >
-              Düzenle
-            </button>
-          </Text>
-        )}
-      </div>
-      <div>
-        <div className={isOpen ? "block" : "hidden"}>
-          {!paidByGiftcard && availablePaymentMethods?.length && (
-            <>
-              <RadioGroup
-                value={selectedPaymentMethod}
-                onChange={(value: string) => setPaymentMethod(value)}
-              >
-                {availablePaymentMethods.map((paymentMethod) => (
-                  <div key={paymentMethod.id}>
-                    {isStripeLike(paymentMethod.id) ? (
-                      <StripePaymentContainer
-                        paymentProviderId={paymentMethod.id}
-                        selectedPaymentOptionId={selectedPaymentMethod}
-                        setError={setError}
-                        setPaymentComplete={setPaymentComplete}
-                      />
-                    ) : (
-                      <PaymentContainer
-                        paymentProviderId={paymentMethod.id}
-                        selectedPaymentOptionId={selectedPaymentMethod}
-                      />
-                    )}
-                  </div>
-                ))}
-              </RadioGroup>
-            </>
-          )}
-
-          {paidByGiftcard && (
-            <div className="flex flex-col w-1/3">
-              <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                Ödeme yöntemi
-              </Text>
-              <Text
-                className="txt-medium text-ui-fg-subtle"
-                data-testid="payment-method-summary"
-              >
-                Hediye kartı
-              </Text>
-            </div>
-          )}
-
-          <ErrorMessage
-            error={error}
-            data-testid="payment-method-error-message"
-          />
-
-          <Button
-            size="large"
-            className={`mt-6 ${CHECKOUT_CTA}`}
-            onClick={handleSubmit}
-            isLoading={isLoading}
-            disabled={
-              (isStripeLike(selectedPaymentMethod) && !paymentComplete) ||
-              (!selectedPaymentMethod && !paidByGiftcard)
-            }
-            data-testid="submit-payment-button"
+    <StepCard
+      step={3}
+      title="Ödeme"
+      state={isOpen ? "active" : paymentReady ? "done" : "upcoming"}
+      onEdit={!isOpen && paymentReady ? handleEdit : undefined}
+      editTestId="edit-payment-button"
+    >
+      <div className={isOpen ? "block" : "hidden"}>
+        {!paidByGiftcard && availablePaymentMethods?.length && (
+          <RadioGroup
+            value={selectedPaymentMethod}
+            onChange={(value: string) => setPaymentMethod(value)}
           >
-            {!activeSession && isStripeLike(selectedPaymentMethod)
-              ? "Ödeme bilgilerini gir"
-              : "Onaya devam et"}
-          </Button>
-        </div>
+            {availablePaymentMethods.map((paymentMethod) => (
+              <div key={paymentMethod.id}>
+                {isStripeLike(paymentMethod.id) ? (
+                  <StripePaymentContainer
+                    paymentProviderId={paymentMethod.id}
+                    selectedPaymentOptionId={selectedPaymentMethod}
+                    setError={setError}
+                    setPaymentComplete={setPaymentComplete}
+                  />
+                ) : (
+                  <PaymentContainer
+                    paymentProviderId={paymentMethod.id}
+                    selectedPaymentOptionId={selectedPaymentMethod}
+                  />
+                )}
+              </div>
+            ))}
+          </RadioGroup>
+        )}
 
-        <div className={isOpen ? "hidden" : "block"}>
-          {cart && paymentReady && activeSession ? (
-            <div className="flex items-start gap-x-1 w-full">
-              <div className="flex flex-col w-1/3">
-                <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                  Ödeme yöntemi
-                </Text>
-                <Text
-                  className="txt-medium text-ui-fg-subtle"
+        {paidByGiftcard && (
+          <StepInfo label="Ödeme yöntemi" data-testid="payment-method-summary">
+            Hediye kartı
+          </StepInfo>
+        )}
+
+        <ErrorMessage
+          error={error}
+          data-testid="payment-method-error-message"
+        />
+
+        <Button
+          size="large"
+          className={`mt-6 ${CHECKOUT_CTA}`}
+          onClick={handleSubmit}
+          isLoading={isLoading}
+          disabled={
+            (isStripeLike(selectedPaymentMethod) && !paymentComplete) ||
+            (!selectedPaymentMethod && !paidByGiftcard)
+          }
+          data-testid="submit-payment-button"
+        >
+          {!activeSession && isStripeLike(selectedPaymentMethod)
+            ? "Ödeme bilgilerini gir"
+            : "Onaya devam et"}
+        </Button>
+      </div>
+
+      {!isOpen &&
+        (cart && paymentReady && activeSession ? (
+          <StepInfo label="Ödeme yöntemi">
+            <div className="flex items-center gap-x-3">
+              <span
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-ink ring-1 ring-inset ring-brand-100"
+                aria-hidden
+              >
+                {activeInfo?.icon || <CreditCard />}
+              </span>
+              <div className="flex min-w-0 flex-col leading-5">
+                <span
+                  className="font-semibold"
                   data-testid="payment-method-summary"
                 >
-                  {getPaymentInfo(activeSession?.provider_id)?.title ||
-                    activeSession?.provider_id}
-                </Text>
-              </div>
-              <div className="flex flex-col w-1/3">
-                <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                  Ödeme bilgileri
-                </Text>
-                <div
-                  className="flex gap-2 txt-medium text-ui-fg-subtle items-center"
+                  {activeInfo?.title || activeSession?.provider_id}
+                </span>
+                <span
+                  className="text-muted"
                   data-testid="payment-details-summary"
                 >
-                  <Container className="flex items-center h-7 w-fit p-2 bg-ui-button-neutral-hover">
-                    {getPaymentInfo(selectedPaymentMethod)?.icon || (
-                      <CreditCard />
-                    )}
-                  </Container>
-                  <Text>Bir sonraki adımda tamamlanacak</Text>
-                </div>
+                  {isManual(activeSession?.provider_id)
+                    ? "Hesap bilgileri sipariş onayında da gösterilir"
+                    : "Ödemeyi son adımda tamamlayacaksınız"}
+                </span>
               </div>
             </div>
-          ) : paidByGiftcard ? (
-            <div className="flex flex-col w-1/3">
-              <Text className="txt-medium-plus text-ui-fg-base mb-1">
-                Ödeme yöntemi
-              </Text>
-              <Text
-                className="txt-medium text-ui-fg-subtle"
-                data-testid="payment-method-summary"
-              >
-                Hediye kartı
-              </Text>
-            </div>
-          ) : null}
-        </div>
-      </div>
-      <Divider className="mt-8" />
-    </div>
+          </StepInfo>
+        ) : paidByGiftcard ? (
+          <StepInfo label="Ödeme yöntemi" data-testid="payment-method-summary">
+            Hediye kartı
+          </StepInfo>
+        ) : null)}
+    </StepCard>
   )
 }
 

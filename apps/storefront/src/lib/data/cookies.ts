@@ -33,20 +33,32 @@ export const getCacheTag = async (tag: string): Promise<string> => {
   }
 }
 
+/**
+ * Catalog data is shared by every visitor and changes in the admin (prices,
+ * stock, products, categories). Nothing revalidates it on those changes, so
+ * without a lifetime a `force-cache` fetch would keep serving the old data
+ * until the next deploy. Refetch it at most this often instead.
+ */
+export const CATALOG_REVALIDATE_SECONDS = 60
+const CATALOG_TAGS = ["products", "categories", "collections", "regions", "variants", "locales"]
+
 export const getCacheOptions = async (
   tag: string
-): Promise<{ tags: string[] } | Record<string, never>> => {
+): Promise<{ tags?: string[]; revalidate?: number }> => {
   if (typeof window !== "undefined") {
     return {}
   }
 
+  const isCatalog = CATALOG_TAGS.some((t) => tag === t || tag.startsWith(`${t}-`))
+  const lifetime = isCatalog ? { revalidate: CATALOG_REVALIDATE_SECONDS } : {}
+
   const cacheTag = await getCacheTag(tag)
 
   if (!cacheTag) {
-    return {}
+    return lifetime
   }
 
-  return { tags: [`${cacheTag}`] }
+  return { tags: [`${cacheTag}`], ...lifetime }
 }
 
 // `sameSite: "lax"` rather than `"strict"`: the customer returns from a

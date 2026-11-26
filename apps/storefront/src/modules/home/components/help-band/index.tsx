@@ -9,9 +9,17 @@ const HIGHLIGHTS = [
   { icon: "chat", text: "Uzman destek" },
 ]
 
-/** Gradient help band (highlights, expert help, phone card); home page only, right above the footer. */
+/**
+ * Gradient help band (highlights, expert help, phone card); home page only,
+ * right above the footer. `data-footer-overlap` lets the footer's rounded top
+ * slide 40px over this band's extra bottom padding, so the corners show the
+ * band's colour instead of a white notch.
+ */
 const HelpBand = () => (
-  <div className="bg-gradient-to-r from-white via-brand-50 to-brand-100">
+  <div
+    data-footer-overlap
+    className="bg-gradient-to-r from-white via-brand-50 to-brand-100"
+  >
     <div className="content-container">
       <ul className="flex flex-wrap gap-x-8 gap-y-4 border-b border-navy/10 py-8">
         {HIGHLIGHTS.map((h) => (
@@ -27,7 +35,7 @@ const HelpBand = () => (
         ))}
       </ul>
 
-      <div className="flex flex-col gap-8 py-10 small:flex-row small:items-center small:justify-between">
+      <div className="flex flex-col gap-8 pb-20 pt-10 small:flex-row small:items-center small:justify-between">
         <div className="max-w-xl">
           <span className="inline-flex items-center gap-x-2 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-navy shadow-sm">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-brand-fg">
@@ -49,7 +57,7 @@ const HelpBand = () => (
               href={STORE_INFO.whatsappHref}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-x-2 rounded-full bg-[#1fa855] px-5 py-3 text-sm font-semibold text-white shadow-[0_6px_16px_rgba(31,168,85,0.3)] hover:bg-[#178a45]"
+              className="flex items-center gap-x-2 rounded-full bg-whatsapp px-5 py-3 text-sm font-semibold text-navy shadow-[0_6px_16px_rgba(37,211,102,0.3)] transition-colors hover:bg-whatsapp-dark"
             >
               <ChatBubbleLeftRight />
               WhatsApp destek hattı

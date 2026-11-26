@@ -20,7 +20,7 @@ const ProductShare = ({
       href={whatsappLink(`Merhaba, "${title}" ürünü hakkında bilgi almak istiyorum.`)}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex h-12 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[#1fa855] px-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#178a45] xsmall:gap-2 xsmall:text-sm"
+      className="flex h-12 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-whatsapp px-2 text-[13px] font-semibold text-navy transition-colors hover:bg-whatsapp-dark xsmall:gap-2 xsmall:text-sm"
     >
       <ChatBubbleLeftRight />
       WhatsApp&apos;tan sor

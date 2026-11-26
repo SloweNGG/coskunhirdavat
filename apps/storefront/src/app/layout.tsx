@@ -4,16 +4,24 @@ import { Metadata } from "next"
 import { Instrument_Sans, JetBrains_Mono } from "next/font/google"
 import "styles/globals.css"
 
+// Main font, prices included. Variable font: one file per subset covers
+// weights 400-700 (no 800), so no weight list (a list would split it into one
+// file per weight). latin-ext holds ğ, ş and İ. Preloaded: it draws the first
+// screen.
 const instrumentSans = Instrument_Sans({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-sans",
+  variable: "--font-instrument-sans",
   display: "swap",
+  preload: true,
 })
 
+// Small uppercase labels, product codes and IBANs. Not preloaded.
 const jetBrainsMono = JetBrains_Mono({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-mono",
+  weight: ["400", "500"],
+  variable: "--font-jetbrains-mono",
   display: "swap",
+  preload: false,
 })
 
 export const metadata: Metadata = {

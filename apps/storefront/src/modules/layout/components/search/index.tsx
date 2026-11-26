@@ -3,123 +3,24 @@
 import { MagnifyingGlass } from "@medusajs/icons"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import { useCallback, useEffect, useRef, useState } from "react"
-import type { SearchClient } from "instantsearch.js"
-import {
-  Configure,
-  InstantSearch,
-  useHits,
-  useInstantSearch,
-  useSearchBox,
-} from "react-instantsearch"
 
-import useSearchSettled from "@lib/hooks/use-search-settled"
 import useToggleState from "@lib/hooks/use-toggle-state"
-import { PRODUCT_INDEX_NAME, searchClient } from "@lib/search-client"
-import { Text } from "@modules/common/components/ui"
-import SearchBar from "./bar"
+import SearchBox, { type SearchCategory } from "./search-box"
 import SearchDrawer from "./drawer"
-import SearchHit, { ProductHit } from "./hit"
 
-const HITS_PER_PAGE = 12
-const DEBOUNCE_MS = 250
+export type { SearchCategory }
 
-const SearchPanel = ({ onNavigate }: { onNavigate: () => void }) => {
-  const timer = useRef<number | undefined>(undefined)
-
-  const queryHook = useCallback(
-    (nextQuery: string, search: (value: string) => void) => {
-      window.clearTimeout(timer.current)
-      timer.current = window.setTimeout(() => search(nextQuery), DEBOUNCE_MS)
-    },
-    []
-  )
-
-  const { query, refine } = useSearchBox({ queryHook })
-  const { items } = useHits<ProductHit>()
-  const { status, error } = useInstantSearch()
-  const { isSettled } = useSearchSettled()
-
-  const [inputValue, setInputValue] = useState(query)
-
-  useEffect(() => () => window.clearTimeout(timer.current), [])
-
-  const hasInput = Boolean(inputValue.trim())
-  const isPending = inputValue.trim() !== query.trim()
-  const hasResults = Boolean(query.trim()) && items.length > 0
-
-  return (
-    <>
-      <div className="flex items-center gap-x-3 border-b border-ui-border-base px-4">
-        <MagnifyingGlass className="shrink-0 text-ui-fg-muted" />
-        <input
-          type="search"
-          value={inputValue}
-          onChange={(event) => {
-            setInputValue(event.target.value)
-            refine(event.target.value)
-          }}
-          placeholder="Ürün ara"
-          aria-label="Ürün ara"
-          autoFocus
-          className="txt-medium w-full bg-transparent py-4 text-ui-fg-base outline-none placeholder:text-ui-fg-muted"
-          data-testid="search-input"
-        />
-      </div>
-
-      <div className="flex-1 overflow-y-auto">
-        {!hasInput ? (
-          <Text
-            className="px-4 py-6 text-center text-ui-fg-muted"
-            data-testid="search-empty"
-          >
-            Aramak için yazmaya başlayın.
-          </Text>
-        ) : status === "error" ? (
-          <Text
-            className="px-4 py-6 text-center text-ui-fg-error"
-            data-testid="search-error"
-          >
-            Arama yapılamadı
-            {error?.message ? `: ${error.message}` : "."}
-          </Text>
-        ) : !isSettled ? (
-          <Text
-            className="px-4 py-6 text-center text-ui-fg-muted"
-            data-testid="search-loading"
-          >
-            Aranıyor&hellip;
-          </Text>
-        ) : hasResults ? (
-          <ul className="py-2" data-testid="search-results">
-            {items.map((hit) => (
-              <SearchHit key={hit.objectID} hit={hit} onNavigate={onNavigate} />
-            ))}
-          </ul>
-        ) : isPending || !query.trim() ? (
-          <Text
-            className="px-4 py-6 text-center text-ui-fg-muted"
-            data-testid="search-loading"
-          >
-            Aranıyor&hellip;
-          </Text>
-        ) : (
-          <Text
-            className="px-4 py-6 text-center text-ui-fg-subtle"
-            data-testid="search-no-results"
-          >
-            &quot;{query}&quot; için ürün bulunamadı
-          </Text>
-        )}
-      </div>
-    </>
-  )
+type SearchProps = {
+  categories: SearchCategory[]
+  currencyCode: string
+  /** "bar": the desktop header field. "icon": a button opening the mobile drawer. */
+  variant?: "icon" | "bar"
 }
 
-const Search = ({ variant = "icon" }: { variant?: "icon" | "bar" }) =>
-  variant === "bar" ? <SearchBar /> : <SearchIcon />
+const Search = ({ variant = "icon", ...props }: SearchProps) =>
+  variant === "bar" ? <SearchBox {...props} /> : <SearchIcon {...props} />
 
-const SearchIcon = () => {
+const SearchIcon = (props: Omit<SearchProps, "variant">) => {
   const { state: isOpen, open, close } = useToggleState()
   const { countryCode } = useParams<{ countryCode: string }>()
 
@@ -140,14 +41,7 @@ const SearchIcon = () => {
       </Link>
 
       <SearchDrawer isOpen={isOpen} close={close}>
-        <InstantSearch
-          indexName={PRODUCT_INDEX_NAME}
-          searchClient={searchClient as unknown as SearchClient}
-          future={{ preserveSharedStateOnUnmount: true }}
-        >
-          <Configure hitsPerPage={HITS_PER_PAGE} />
-          <SearchPanel onNavigate={close} />
-        </InstantSearch>
+        <SearchBox {...props} variant="sheet" onNavigate={close} />
       </SearchDrawer>
     </>
   )

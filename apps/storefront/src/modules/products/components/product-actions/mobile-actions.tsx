@@ -1,6 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react"
 import { Button, clx } from "@modules/common/components/ui"
-import React, { Fragment, useEffect, useMemo } from "react"
+import React, { Fragment, useMemo } from "react"
 
 import useToggleState from "@lib/hooks/use-toggle-state"
 import ChevronDown from "@modules/common/icons/chevron-down"
@@ -36,12 +36,6 @@ const MobileActions: React.FC<MobileActionsProps> = ({
   optionsDisabled,
 }) => {
   const { state, open, close } = useToggleState()
-
-  // Lets the floating "Parça Bul" button step aside while this bar is shown.
-  useEffect(() => {
-    document.body.toggleAttribute("data-sticky-buy", show)
-    return () => document.body.removeAttribute("data-sticky-buy")
-  }, [show])
 
   const price = getProductPrice({
     product: product,
@@ -79,6 +73,8 @@ const MobileActions: React.FC<MobileActionsProps> = ({
           <div
             className="bg-white flex flex-col gap-y-3 justify-center items-center text-large-regular p-4 h-full w-full border-t border-gray-200"
             data-testid="mobile-actions"
+            // lets the floating WhatsApp button step aside (globals.css)
+            data-sticky-bar
           >
             <div className="flex items-center gap-x-2">
               <span data-testid="mobile-title">{product.title}</span>
@@ -93,7 +89,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                     </p>
                   )}
                   <span
-                    className={clx({
+                    className={clx("font-bold", {
                       "text-ui-fg-interactive":
                         selectedPrice.price_type === "sale",
                     })}

@@ -13,14 +13,14 @@ export default function PreviewPrice({ price }: { price: VariantPrice }) {
     <div className="flex items-baseline gap-x-2">
       {isSale && (
         <span
-          className="text-sm text-muted line-through"
+          className="text-[15px] font-semibold text-muted line-through"
           data-testid="original-price"
         >
           <PriceText value={price.original_price} />
         </span>
       )}
       <span
-        className={clx("text-lg font-bold", isSale ? "text-sale" : "text-navy")}
+        className={clx("text-[22px] font-bold leading-none", isSale ? "text-sale" : "text-navy")}
         data-testid="price"
       >
         <PriceText value={price.calculated_price} />

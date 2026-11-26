@@ -8,7 +8,7 @@ export const STORE_THEME: "turkuaz" | "turuncu" | "sari" | "mavi" = "turkuaz"
 export const STORE_INFO = {
   name: "Coşkun Hırdavat",
   shortName: "COŞKUN",
-  tagline: "Hırdavat ve Yapı Malzemeleri",
+  tagline: "Hırdavat ve Endüstriyel Malzemeler",
   phone: "0 (258) 242 34 34",
   phoneHref: "tel:+902582423434",
   // WhatsApp: digits only with country code
@@ -53,39 +53,41 @@ export const CATEGORY_ICONS: Record<string, string> = {
   "elektrik-aydinlatma": "light",
   tesisat: "wrench",
   bahce: "sun",
+  "olcu-kontrol-aletleri": "measure",
+  "kaynak-malzemeleri": "fire",
+  "kesme-asindirma": "sparkles",
+  "kaldirma-tasima": "handTruck",
+  "paketleme-ambalaj": "box",
 }
 
 export const USP_ITEMS = [
   {
     icon: "truck",
     title: "Hızlı Kargo",
-    text: "Siparişleriniz aynı gün kargoda",
+    text: "Aynı gün kargoda",
   },
   {
     icon: "card",
     title: "Taksit İmkânı",
-    text: "Kredi kartına taksitli ödeme",
+    text: "Kredi kartına taksit",
   },
   {
     icon: "lock",
     title: "Güvenli Ödeme",
-    text: "PayTR altyapısıyla 3D Secure",
+    text: "PayTR ile 3D Secure",
   },
-  { icon: "refresh", title: "Kolay İade", text: "14 gün içinde iade hakkı" },
-  { icon: "chat", title: "Uzman Destek", text: "Doğru ürün için bize danışın" },
+  { icon: "refresh", title: "Kolay İade", text: "14 gün içinde iade" },
+  { icon: "chat", title: "Uzman Destek", text: "Uzman ekibe danışın" },
   {
     icon: "building",
-    title: "Geniş Ürün Yelpazesi",
-    text: "Binlerce hırdavat ürünü",
+    title: "Geniş Yelpaze",
+    text: "Yüzlerce ürün çeşidi",
   },
 ]
 
 /** WhatsApp chat link with a pre-filled message. */
 export const whatsappLink = (text: string) =>
   `https://wa.me/${STORE_INFO.whatsappNumber}?text=${encodeURIComponent(text)}`
-
-export const PART_FINDER_MESSAGE =
-  "Merhaba, elimdeki parçanın eşini arıyorum. Fotoğrafını gönderiyorum:"
 
 /**
  * Cart item total (KDV dahil, TRY) from which Standart Kargo is free.
@@ -95,3 +97,55 @@ export const FREE_SHIPPING_THRESHOLD = 3000
 
 /** "Hemen al" (add to cart and go to checkout) on the product page. Hidden for now. */
 export const SHOW_BUY_NOW = false
+
+/**
+ * Product tag (exact, case-sensitive) that puts a product under "Öne çıkanlar"
+ * in its category's menu. Categories without tagged products show their
+ * highest-priced products instead.
+ */
+export const FEATURED_PRODUCT_TAG = "öne çıkan"
+
+/** Pre-filled WhatsApp message behind the menu's "can't find it" link. */
+/** Pre-filled message of the floating WhatsApp button (bottom-right of every page). */
+export const WHATSAPP_BUTTON_MESSAGE = "Merhaba, bilgi almak istiyorum."
+
+export const MENU_HELP_MESSAGE =
+  "Merhaba, aradığım ürünü bulamadım. Yardımcı olur musunuz?"
+
+/**
+ * Shown under "Popüler aramalar" when the header search box is focused and
+ * empty. Edit freely; each term should find products.
+ */
+export const POPULAR_SEARCHES = [
+  "lazer metre",
+  "caraskal",
+  "su terazisi",
+  "kumpas",
+  "transpalet",
+  "kaynak teli",
+]
+
+/** The header search box's placeholder (screen readers get "Ürün ara"). */
+export const SEARCH_PLACEHOLDER = "Ürün, kategori veya model kodu ara..."
+
+/**
+ * Typed one after another into the empty, unfocused header search box, after
+ * SEARCH_PLACEHOLDER (shown as "Kumpas...", "Streç film..."). Edit freely;
+ * each name should find products (all of these did on 2026-11-26).
+ */
+export const SEARCH_PLACEHOLDER_WORDS = [
+  "Kumpas",
+  "Streç film",
+  "Caraskal",
+  "Tungsten elektrot",
+  "Çember makinesi",
+  "Su terazisi",
+  "Transpalet",
+  "Elmas testere",
+  "Kaynak teli",
+  "İş eldiveni",
+]
+
+/** Pre-filled WhatsApp message when a search finds nothing. */
+export const searchHelpMessage = (query: string) =>
+  `Merhaba, sitede "${query}" aradım ama bulamadım. Yardımcı olur musunuz?`

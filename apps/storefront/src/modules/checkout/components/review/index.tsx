@@ -1,14 +1,12 @@
 "use client"
 
-import { Heading, clx } from "@modules/common/components/ui"
-
 import PaymentButton from "../payment-button"
 import { useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { STORE_INFO } from "@lib/store-config"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
-import StepTitle from "@modules/checkout/components/step-title"
+import StepCard from "@modules/checkout/components/step-card"
 
 const Review = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   const searchParams = useSearchParams()
@@ -29,32 +27,22 @@ const Review = ({ cart }: { cart: HttpTypes.StoreCart }) => {
     (cart.payment_collection || paidByGiftcard)
 
   return (
-    <div className="bg-white">
-      <div className="flex flex-row items-center justify-between mb-6">
-        <Heading
-          level="h2"
-          className={clx("flex flex-row items-center", {
-            "opacity-50 pointer-events-none select-none": !isOpen,
-          })}
-        >
-          <StepTitle step={4} title="Onay" />
-        </Heading>
-      </div>
+    <StepCard step={4} title="Onay" state={isOpen ? "active" : "upcoming"}>
       {isOpen && previousStepsCompleted && (
         <>
-          <label className="mb-5 flex cursor-pointer items-start gap-x-3 text-sm text-navy">
+          <label className="mb-5 flex cursor-pointer items-start gap-x-3 rounded-xl bg-soft p-4 text-sm leading-6 text-navy">
             <input
               type="checkbox"
               checked={consent}
               onChange={(e) => setConsent(e.target.checked)}
-              className="mt-0.5 h-4 w-4 shrink-0 accent-navy"
+              className="mt-[3px] h-[18px] w-[18px] shrink-0 cursor-pointer accent-brand"
               data-testid="contract-consent-checkbox"
             />
             <span>
               <LocalizedClientLink
                 href="/terms"
                 target="_blank"
-                className="font-semibold underline underline-offset-2"
+                className="font-semibold text-brand-ink underline underline-offset-2 hover:text-navy"
               >
                 Ön Bilgilendirme Formu
               </LocalizedClientLink>
@@ -62,7 +50,7 @@ const Review = ({ cart }: { cart: HttpTypes.StoreCart }) => {
               <LocalizedClientLink
                 href="/terms"
                 target="_blank"
-                className="font-semibold underline underline-offset-2"
+                className="font-semibold text-brand-ink underline underline-offset-2 hover:text-navy"
               >
                 Mesafeli Satış Sözleşmesi
               </LocalizedClientLink>
@@ -80,14 +68,14 @@ const Review = ({ cart }: { cart: HttpTypes.StoreCart }) => {
               href={STORE_INFO.whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-navy underline underline-offset-2"
+              className="font-semibold text-whatsapp-ink underline underline-offset-2"
             >
               Bize WhatsApp&apos;tan yazın
             </a>
           </p>
         </>
       )}
-    </div>
+    </StepCard>
   )
 }
 
