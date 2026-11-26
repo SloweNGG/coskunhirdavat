@@ -102,7 +102,7 @@ const Overview = ({ customer, orders }: OverviewProps) => {
                               >
                                 #{order.display_id}
                               </span>
-                              <span data-testid="order-amount">
+                              <span className="font-price tabular-nums" data-testid="order-amount">
                                 {convertToLocale({
                                   amount: order.total,
                                   currency_code: order.currency_code,

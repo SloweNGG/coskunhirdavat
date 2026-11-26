@@ -1,12 +1,20 @@
 import { getBaseURL } from "@lib/util/env"
 import { STORE_THEME } from "@lib/store-config"
 import { Metadata } from "next"
-import { Instrument_Sans, JetBrains_Mono } from "next/font/google"
+import { Barlow, Instrument_Sans, JetBrains_Mono } from "next/font/google"
 import "styles/globals.css"
 
 const instrumentSans = Instrument_Sans({
   subsets: ["latin", "latin-ext"],
   variable: "--font-sans",
+  display: "swap",
+})
+
+// Prices only (PriceText): sturdy DIN-like figures that read well bold.
+const barlow = Barlow({
+  subsets: ["latin", "latin-ext"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-price",
   display: "swap",
 })
 
@@ -26,7 +34,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       lang="tr"
       data-mode="light"
       data-theme={STORE_THEME}
-      className={`${instrumentSans.variable} ${jetBrainsMono.variable}`}
+      className={`${instrumentSans.variable} ${jetBrainsMono.variable} ${barlow.variable}`}
     >
       <head>
         <link rel="ucp" href="/.well-known/ucp" />

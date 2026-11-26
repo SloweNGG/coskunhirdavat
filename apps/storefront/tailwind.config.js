@@ -82,6 +82,7 @@ module.exports = {
       },
       fontFamily: {
         mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+        price: ["var(--font-price)", "var(--font-sans)", "sans-serif"],
         sans: [
           "var(--font-sans)",
           "Inter",

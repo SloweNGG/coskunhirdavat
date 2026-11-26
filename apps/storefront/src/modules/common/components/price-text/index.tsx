@@ -1,20 +1,22 @@
 /**
- * Renders a formatted price like "1.026,00 TL" with the kuruş part small and
- * raised: 1.026⁰⁰ TL. Any other format is rendered unchanged.
+ * Renders a formatted price like "1.026,00 TL" in the price font (Barlow,
+ * tabular figures so stacked amounts line up)
+ * with the kuruş part small and raised: 1.026⁰⁰ TL. Weight and size come
+ * from the parent. Any other format is rendered unchanged, in the same font.
  */
 const PriceText = ({ value }: { value?: string | null }) => {
   if (!value) return null
   const match = value.match(/^(.*?)(,\d+)(\s?TL)$/)
-  if (!match) return <>{value}</>
+  if (!match) return <span className="font-price tabular-nums">{value}</span>
 
   const [, lira, kurus, suffix] = match
   return (
-    <span className="whitespace-nowrap">
+    <span className="whitespace-nowrap font-price tabular-nums tracking-[-0.01em]">
       {lira}
-      <span className="relative -top-[0.55em] text-[0.55em] font-semibold">
+      <span className="relative -top-[0.62em] ml-[0.03em] text-[0.52em]">
         {kurus}
       </span>
-      <span className="text-[0.7em] font-semibold">{suffix}</span>
+      <span className="ml-[0.1em] text-[0.62em]">{suffix.trim()}</span>
     </span>
   )
 }

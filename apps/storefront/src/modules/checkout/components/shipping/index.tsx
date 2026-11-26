@@ -293,7 +293,7 @@ const Shipping: React.FC<ShippingProps> = ({
                             {option.name}
                           </span>
                         </div>
-                        <span className="justify-self-end text-ui-fg-base">
+                        <span className="justify-self-end font-price tabular-nums text-ui-fg-base">
                           {option.price_type === "flat" ? (
                             convertToLocale({
                               amount: option.amount!,
@@ -381,7 +381,7 @@ const Shipping: React.FC<ShippingProps> = ({
                               </span>
                             </div>
                           </div>
-                          <span className="justify-self-end text-ui-fg-base">
+                          <span className="justify-self-end font-price tabular-nums text-ui-fg-base">
                             {convertToLocale({
                               amount: option.amount!,
                               currency_code: cart?.currency_code,

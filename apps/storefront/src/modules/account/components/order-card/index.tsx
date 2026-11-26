@@ -33,7 +33,7 @@ const OrderCard = ({ order }: OrderCardProps) => {
         <span className="pr-2" data-testid="order-created-at">
           {new Date(order.created_at).toLocaleDateString("tr-TR")}
         </span>
-        <span className="px-2" data-testid="order-amount">
+        <span className="px-2 font-price tabular-nums" data-testid="order-amount">
           {convertToLocale({
             amount: order.total,
             currency_code: order.currency_code,
