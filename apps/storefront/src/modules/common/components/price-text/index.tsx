@@ -1,6 +1,7 @@
 /**
- * Renders a formatted price like "1.026,00 TL" in the price font (Barlow,
- * tabular figures so stacked amounts line up)
+ * Renders a formatted price like "1.026,00 TL" in the price font (font-price,
+ * currently the main font Instrument Sans; tabular-nums lines up stacked
+ * amounts where the font has tabular figures)
  * with the kuruş part small and raised: 1.026⁰⁰ TL. Weight and size come
  * from the parent. Any other format is rendered unchanged, in the same font.
  */

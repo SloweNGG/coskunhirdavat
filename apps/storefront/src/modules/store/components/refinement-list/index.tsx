@@ -64,19 +64,25 @@ const RefinementList = ({
     })
 
   return (
-    <div className="flex flex-col gap-12 py-4 mb-8 small:px-0 pl-6 small:min-w-[250px] small:ml-[1.675rem]">
-      <SortProducts
-        sortBy={sortBy}
-        setQueryParams={setQueryParams}
-        data-testid={dataTestId}
-      />
-      {!hideOptionsPicker && (
-        <OptionsPicker
-          selectedValueIds={selectedOptionValueIds}
-          setOptionValueIds={setOptionValueIds}
-        />
-      )}
-    </div>
+    <aside className="mb-6 w-full small:mb-0 small:mr-8 small:w-[260px] small:shrink-0">
+      <div className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
+        <div className="px-4 py-3">
+          <SortProducts
+            sortBy={sortBy}
+            setQueryParams={setQueryParams}
+            data-testid={dataTestId}
+          />
+        </div>
+        {!hideOptionsPicker && (
+          <div className="px-4 py-3">
+            <OptionsPicker
+              selectedValueIds={selectedOptionValueIds}
+              setOptionValueIds={setOptionValueIds}
+            />
+          </div>
+        )}
+      </div>
+    </aside>
   )
 }
 

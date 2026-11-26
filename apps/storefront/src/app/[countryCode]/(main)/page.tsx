@@ -2,9 +2,7 @@ import { Metadata } from "next"
 
 import CategoryGrid from "@modules/home/components/category-grid"
 import Hero from "@modules/home/components/hero"
-import PartFinder from "@modules/home/components/part-finder"
 import ProductSection from "@modules/home/components/product-section"
-import ProjectGrid from "@modules/home/components/project-grid"
 import PromoBanners from "@modules/home/components/promo-banners"
 import UspStrip from "@modules/home/components/usp-strip"
 import HelpBand from "@modules/home/components/help-band"
@@ -25,9 +23,9 @@ export async function generateMetadata(props: {
   const [origin, regions] = await Promise.all([getSiteOrigin(), listRegions()])
 
   return {
-    title: `${STORE_NAME} | Hırdavat, El Aletleri ve Yapı Malzemeleri`,
+    title: `${STORE_NAME} | Ölçü Aletleri, Kaynak ve Kaldırma Ekipmanı`,
     description:
-      "El aletleri, elektrikli aletler, bağlantı elemanları, iş güvenliği ve yapı malzemeleri uygun fiyat, taksit ve hızlı kargo ile.",
+      "Kumpas, gönye, su terazisi, tungsten elektrot, kaynak teli, elmas testere, caraskal, transpalet ve çember makineleri uygun fiyat, taksit ve hızlı kargo ile.",
     alternates: {
       canonical: `${origin}/${countryCode}`,
       languages: {
@@ -101,10 +99,8 @@ export default async function Home(props: {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: toJsonLd(structuredData) }}
       />
-      <Hero />
+      <Hero categories={categories} />
       <CategoryGrid categories={categories} />
-      <ProjectGrid />
-      <PartFinder />
       <UspStrip />
       <ProductSection
         eyebrow="En çok tercih edilenler"

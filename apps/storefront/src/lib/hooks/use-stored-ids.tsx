@@ -6,6 +6,7 @@ import { useCallback, useSyncExternalStore } from "react"
 // shopper to another device; move to a customer-linked backend list if needed.
 export const FAVORITES_KEY = "coskun:favorites"
 export const RECENT_KEY = "coskun:recently-viewed"
+export const RECENT_SEARCHES_KEY = "coskun:recent-searches"
 
 const EVENT = "coskun:stored-ids"
 const EMPTY: string[] = []
@@ -49,7 +50,10 @@ const subscribe = (onChange: () => void) => {
   }
 }
 
-/** Product id list in localStorage, shared live between components and tabs. */
+/**
+ * String list in localStorage (product ids, recent search terms), shared live
+ * between components and tabs.
+ */
 export const useStoredIds = (key: string, limit = 50) => {
   const ids = useSyncExternalStore(subscribe, () => read(key), () => EMPTY)
 
@@ -74,5 +78,7 @@ export const useStoredIds = (key: string, limit = 50) => {
     [key, limit]
   )
 
-  return { ids, toggle, push }
+  const clear = useCallback(() => write(key, []), [key])
+
+  return { ids, toggle, push, clear }
 }

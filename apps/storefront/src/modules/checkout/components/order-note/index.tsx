@@ -1,7 +1,9 @@
 "use client"
 
 import { setOrderNote } from "@lib/data/cart"
+import { ChatBubbleLeftRight, Plus } from "@medusajs/icons"
 import { useState } from "react"
+import { SUMMARY_TOGGLE } from "../cta-class"
 
 /** "Sipariş notu ekle": optional note for the store, saved when the field loses focus. */
 const OrderNote = ({ initialNote }: { initialNote?: string }) => {
@@ -23,10 +25,14 @@ const OrderNote = ({ initialNote }: { initialNote?: string }) => {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-left text-base text-navy hover:text-brand-ink"
+        className={SUMMARY_TOGGLE}
         data-testid="add-order-note-button"
       >
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-ink">
+          <ChatBubbleLeftRight aria-hidden />
+        </span>
         Sipariş notu ekle
+        <Plus aria-hidden className="ml-auto text-navy/50" />
       </button>
     )
   }

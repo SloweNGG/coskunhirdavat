@@ -31,13 +31,17 @@ const CategoryGrid = ({
               className="group relative flex h-full flex-col items-center gap-3 rounded-xl border border-line bg-white px-3 py-6 text-center transition-all hover:-translate-y-0.5 hover:border-brand hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]"
             >
               {typeof c.metadata?.image_url === "string" && c.metadata.image_url ? (
-                <Image
-                  src={c.metadata.image_url}
-                  alt=""
-                  width={64}
-                  height={64}
-                  className="h-16 w-16 rounded-full object-cover transition-transform group-hover:scale-105"
-                />
+                // Product photos: contained, not cropped, so long tools
+                // (calipers, pallet trucks) stay whole.
+                <span className="flex h-24 w-full items-center justify-center">
+                  <Image
+                    src={c.metadata.image_url}
+                    alt=""
+                    width={192}
+                    height={192}
+                    className="h-24 w-24 object-contain transition-transform group-hover:scale-105"
+                  />
+                </span>
               ) : (
                 <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-ink transition-colors group-hover:bg-brand group-hover:text-brand-fg">
                   <StoreIcon name={CATEGORY_ICONS[c.handle]} className="h-8 w-8" />

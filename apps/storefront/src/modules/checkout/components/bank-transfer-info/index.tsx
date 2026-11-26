@@ -16,10 +16,8 @@ const BankTransferInfo = ({
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <p className="text-xs text-muted">Alıcı</p>
-          <p
-            className="truncate text-[12px] font-semibold xsmall:text-[13px]"
-            title={bank.accountHolder}
-          >
+          {/* wraps instead of truncating: shoppers copy it onto the transfer */}
+          <p className="text-[12px] font-semibold leading-snug xsmall:text-[13px]">
             {bank.accountHolder}
           </p>
         </div>

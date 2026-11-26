@@ -1,5 +1,7 @@
 import {
+  ArchiveBox,
   ArrowPath,
+  ArrowsPointingOut,
   Beaker,
   Bolt,
   Camera,
@@ -7,10 +9,13 @@ import {
   ChatBubbleLeftRight,
   CogSixTooth,
   CreditCard,
+  Fire,
+  HandTruck,
   Key,
   LightBulb,
   LockClosedSolid,
   Plug,
+  Sparkles,
   SquaresPlus,
   Sun,
   Swatch,
@@ -61,6 +66,11 @@ const ICONS = {
   key: Key,
   plug: Plug,
   swatch: Swatch,
+  measure: ArrowsPointingOut,
+  fire: Fire,
+  sparkles: Sparkles,
+  handTruck: HandTruck,
+  box: ArchiveBox,
   default: SquaresPlus,
 } as const
 

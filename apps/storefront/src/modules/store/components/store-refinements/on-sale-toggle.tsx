@@ -20,23 +20,25 @@ const OnSaleToggle = ({ currencyCode }: { currencyCode: string }) => {
   }
 
   return (
-    <label className="flex cursor-pointer items-center gap-x-2">
-      <input
-        type="checkbox"
-        checked={value.isRefined}
-        onChange={() => refine(value)}
-        className="shrink-0 accent-ui-fg-interactive"
-        data-testid="on-sale-toggle"
-      />
-      <span className="txt-compact-small-plus text-ui-fg-subtle">
-        Yalnızca indirimdekiler
-      </span>
-      {typeof value.count === "number" && (
-        <span className="text-small-regular text-ui-fg-muted">
-          ({value.count})
+    <div className="px-4 py-3">
+      <label className="flex cursor-pointer items-center gap-x-2.5">
+        <input
+          type="checkbox"
+          checked={value.isRefined}
+          onChange={() => refine(value)}
+          className="h-4 w-4 shrink-0 cursor-pointer accent-brand"
+          data-testid="on-sale-toggle"
+        />
+        <span className="flex-1 text-sm font-semibold text-navy">
+          Yalnızca indirimdekiler
         </span>
-      )}
-    </label>
+        {typeof value.count === "number" && (
+          <span className="shrink-0 text-xs tabular-nums text-muted">
+            {value.count}
+          </span>
+        )}
+      </label>
+    </div>
   )
 }
 

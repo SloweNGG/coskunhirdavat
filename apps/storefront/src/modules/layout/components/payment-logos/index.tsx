@@ -6,9 +6,42 @@ const VISA_PATH =
 const MASTERCARD_PATH =
   "M11.343 18.031c.058.049.12.098.181.146-1.177.783-2.59 1.238-4.107 1.238C3.32 19.416 0 16.096 0 12c0-4.095 3.32-7.416 7.416-7.416 1.518 0 2.931.456 4.105 1.238-.06.051-.12.098-.165.15C9.6 7.489 8.595 9.688 8.595 12c0 2.311 1.001 4.51 2.748 6.031zm5.241-13.447c-1.52 0-2.931.456-4.105 1.238.06.051.12.098.165.15C14.4 7.489 15.405 9.688 15.405 12c0 2.31-1.001 4.507-2.748 6.031-.058.049-.12.098-.181.146 1.177.783 2.588 1.238 4.107 1.238C20.68 19.416 24 16.096 24 12c0-4.094-3.32-7.416-7.416-7.416zM12 6.174c-.096.075-.189.15-.28.231C10.156 7.764 9.169 9.765 9.169 12c0 2.236.987 4.236 2.551 5.595.09.08.185.158.28.232.096-.074.189-.152.28-.232 1.563-1.359 2.551-3.359 2.551-5.595 0-2.235-.987-4.236-2.551-5.595-.09-.08-.184-.156-.28-.231z"
 
-const item = "flex h-7 items-center text-white/70"
+const item = "flex h-7 items-center text-brand-bright"
 
-/** Monochrome payment / security marks for the footer's dark bottom bar. */
+/**
+ * Paints a single-colour logo file in the current text colour (CSS mask), so
+ * the supplied white TROY / PayTR files follow the theme's turquoise.
+ */
+const MaskLogo = ({
+  src,
+  label,
+  width,
+  height,
+  className,
+}: {
+  src: string
+  label: string
+  width: number
+  height: number
+  className?: string
+}) => {
+  const mask = `url(${src}) center / contain no-repeat`
+
+  return (
+    <span
+      role="img"
+      aria-label={label}
+      className={`block bg-current ${className ?? ""}`}
+      style={{
+        aspectRatio: `${width} / ${height}`,
+        WebkitMask: mask,
+        mask,
+      }}
+    />
+  )
+}
+
+/** Turquoise payment / security marks for the footer's dark bottom bar. */
 const PaymentLogos = () => (
   <ul className="flex flex-wrap items-center gap-x-5 gap-y-3" aria-label="Güvenli ödeme">
     <li className={item}>
@@ -22,25 +55,23 @@ const PaymentLogos = () => (
       </svg>
     </li>
     <li className={item}>
-      {/* official white TROY logo supplied by the owner */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      {/* official white TROY logo supplied by the owner, tinted */}
+      <MaskLogo
         src="/images/payment/troy-white.svg"
-        alt="TROY"
+        label="TROY"
         width={298}
         height={137}
-        className="h-5 w-auto translate-y-[2px] opacity-70"
+        className="h-5 translate-y-[2px]"
       />
     </li>
     <li className={item}>
-      {/* official white logo from paytr.com */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      {/* official white logo from paytr.com, tinted */}
+      <MaskLogo
         src="/images/payment/paytr-white.svg"
-        alt="PayTR"
+        label="PayTR"
         width={135}
         height={24}
-        className="h-4 w-auto opacity-70"
+        className="h-4"
       />
     </li>
     <li className={`${item} gap-1.5 text-xs font-semibold`}>

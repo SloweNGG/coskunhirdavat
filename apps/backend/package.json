@@ -38,6 +38,7 @@
     "pdfkit": "^0.21.0",
     "react-i18next": "13.5.0",
     "react-router-dom": "7.18.2",
+    "resend": "^6.40.0",
     "zod": "4.2.0"
   },
   "devDependencies": {

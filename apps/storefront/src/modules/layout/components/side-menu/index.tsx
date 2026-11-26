@@ -24,7 +24,11 @@ type SideMenuProps = {
   regions: HttpTypes.StoreRegion[] | null
   locales: Locale[] | null
   currentLocale: string | null
-  categories?: { name: string; handle: string }[]
+  categories?: {
+    name: string
+    handle: string
+    children?: { name: string; handle: string }[]
+  }[]
 }
 
 const SideMenu = ({
@@ -115,6 +119,21 @@ const SideMenu = ({
                               >
                                 {c.name}
                               </LocalizedClientLink>
+                              {!!c.children?.length && (
+                                <ul className="mt-2 flex flex-col gap-2 border-l border-white/15 pl-3">
+                                  {c.children.map((child) => (
+                                    <li key={child.handle}>
+                                      <LocalizedClientLink
+                                        href={`/categories/${child.handle}`}
+                                        className="text-sm text-white/70 hover:text-brand-bright"
+                                        onClick={close}
+                                      >
+                                        {child.name}
+                                      </LocalizedClientLink>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
                             </li>
                           ))}
                         </ul>

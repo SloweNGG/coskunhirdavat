@@ -25,7 +25,12 @@ export default function ContactPage() {
         </dd>
         <dt className="text-ui-fg-subtle">WhatsApp</dt>
         <dd>
-          <a href={STORE_INFO.whatsappHref} target="_blank" rel="noreferrer">
+          <a
+            href={STORE_INFO.whatsappHref}
+            target="_blank"
+            rel="noreferrer"
+            className="font-semibold text-whatsapp-ink hover:underline"
+          >
             Bize yazın
           </a>
         </dd>

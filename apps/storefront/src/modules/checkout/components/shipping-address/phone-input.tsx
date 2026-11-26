@@ -45,12 +45,15 @@ const PhoneInput = ({
   value,
   onChange,
   required,
+  optional,
   "data-testid": dataTestId,
 }: {
   name: string
   value: string
   onChange: (value: string) => void
   required?: boolean
+  /** adds a muted "(isteğe bağlı)" after the label */
+  optional?: boolean
   "data-testid"?: string
 }) => {
   const digits = localPhoneDigits(value)
@@ -62,6 +65,9 @@ const PhoneInput = ({
         className="text-sm font-medium text-navy"
       >
         Telefon{required && <span className="text-rose-500">*</span>}
+        {optional && (
+          <span className="ml-1 font-normal text-muted">(isteğe bağlı)</span>
+        )}
       </label>
       <div className="flex h-11 items-center gap-x-3 rounded-xl border border-transparent bg-soft px-4 transition-colors focus-within:border-navy/25 focus-within:bg-white hover:bg-grey-10">
         <TurkishFlag />

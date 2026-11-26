@@ -1,78 +1,110 @@
-import { ArrowRight, Bolt, ShieldCheck } from "@medusajs/icons"
+import Image from "next/image"
+import { ArrowRight, ArrowsPointingOut, HandTruck } from "@medusajs/icons"
+import { HttpTypes } from "@medusajs/types"
+import { listHeroSlides, type HeroSlide } from "@lib/data/hero-slides"
 import { STORE_INFO } from "@lib/store-config"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import Stamp from "@modules/common/components/stamp"
+import HeroSlideView from "./slide"
+import HeroSlider from "./slider"
 
-const Hero = () => {
+/** The category's image (metadata.image_url, a product photo), if it has one. */
+const categoryImage = (
+  categories: HttpTypes.StoreProductCategory[],
+  handle: string
+) => {
+  const url = categories.find((c) => c.handle === handle)?.metadata?.image_url
+  return typeof url === "string" && url ? url : undefined
+}
+
+/** Product photo on a white tile in the promo card's bottom-right corner. */
+const PromoPhoto = ({
+  src,
+  className = "",
+}: {
+  src: string
+  className?: string
+}) => (
+  <span
+    className={`absolute bottom-4 right-4 flex h-24 w-24 items-center justify-center rounded-2xl bg-white p-2 shadow-[0_8px_20px_rgba(0,0,0,0.12)] medium:h-32 medium:w-32 ${className}`}
+  >
+    <Image
+      src={src}
+      alt=""
+      width={256}
+      height={256}
+      className="h-full w-full object-contain transition-transform group-hover:scale-105"
+    />
+  </span>
+)
+
+/** Shown when no slide is on (none set up in the admin, or the backend is unreachable). */
+const DEFAULT_SLIDE: HeroSlide = {
+  id: "default",
+  eyebrow: STORE_INFO.tagline,
+  title: "Ustaların tercihi,",
+  accent: STORE_INFO.name,
+  description:
+    "Kumpas ve gönyeden kaynak teline, elmas testereden caraskal ve çember makinesine kadar atölye, şantiye ve depo için yüzlerce ürün uygun fiyat ve hızlı kargo ile kapınızda.",
+  button_text: "Alışverişe Başla",
+  button_url: "/store",
+  secondary_button_text: "Kategorileri İncele",
+  secondary_button_url: "#kategoriler",
+  image_url: null,
+  image_style: "card",
+  theme: "dark",
+  show_stamp: false,
+  duration: 6,
+}
+
+const Hero = async ({
+  categories = [],
+}: {
+  categories?: HttpTypes.StoreProductCategory[]
+}) => {
+  const measureImage = categoryImage(categories, "olcu-kontrol-aletleri")
+  const liftingImage = categoryImage(categories, "kaldirma-tasima")
+  const loaded = await listHeroSlides()
+  const slides = loaded.length ? loaded : [DEFAULT_SLIDE]
+
   return (
     <section className="content-container pt-6 small:pt-8">
       <div className="grid grid-cols-1 gap-4 small:grid-cols-3 small:gap-5">
-        {/* Main banner */}
-        <div className="blueprint-dark relative overflow-hidden rounded-xl bg-navy p-8 text-white small:col-span-2 small:p-12">
-          <Stamp
-            text={`Ustaların tercihi • ${STORE_INFO.name} • `}
-            className="pointer-events-none absolute right-10 top-10 hidden -rotate-12 text-brand-bright/80 medium:flex"
+        {/* Main banner: slides from the admin ("Ana Sayfa Slaytları") */}
+        <div className="small:col-span-2">
+          <HeroSlider
+            durations={slides.map((slide) => slide.duration)}
+            cornerBlocks={slides.map((slide) => !!slide.show_stamp)}
+            labels={slides.map((slide) =>
+              [slide.title, slide.accent].filter(Boolean).join(" ")
+            )}
+            slides={slides.map((slide, i) => (
+              <HeroSlideView key={slide.id} slide={slide} first={i === 0} />
+            ))}
           />
-          {/* Technical-drawing title block */}
-          <dl
-            aria-hidden
-            className="pointer-events-none absolute bottom-0 right-0 hidden grid-cols-[auto_auto] border-l border-t border-white/15 font-mono text-xs uppercase text-white/45 medium:grid"
-          >
-            <dt className="border-b border-r border-white/15 px-3 py-1.5">Çizim No</dt>
-            <dd className="border-b border-white/15 px-3 py-1.5 text-white/70">CH-001</dd>
-            <dt className="border-r border-white/15 px-3 py-1.5">Ölçek</dt>
-            <dd className="px-3 py-1.5 text-white/70">1:1 · Usta işi</dd>
-          </dl>
-          <div className="relative flex max-w-xl flex-col gap-5">
-            <span className="w-fit rounded bg-brand px-3 py-1 font-mono text-xs font-medium uppercase tracking-widest text-brand-fg">
-              {STORE_INFO.tagline}
-            </span>
-            <h1 className="text-3xl font-bold leading-tight small:text-5xl small:leading-[1.1]">
-              Ustaların tercihi,
-              <br />
-              <span className="text-brand-bright">{STORE_INFO.name}</span>
-            </h1>
-            <p className="text-base text-white/85 small:text-lg">
-              El aletlerinden elektrikli aletlere, bağlantı elemanlarından iş
-              güvenliğine kadar binlerce ürün uygun fiyat ve hızlı kargo ile
-              kapınızda.
-            </p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              <LocalizedClientLink
-                href="/store"
-                className="flex items-center gap-x-2 rounded-lg bg-brand px-6 py-3 text-sm font-semibold text-brand-fg hover:bg-brand-dark"
-              >
-                Alışverişe Başla
-                <ArrowRight />
-              </LocalizedClientLink>
-              <a
-                href="#kategoriler"
-                className="flex items-center rounded-lg border border-white/60 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
-              >
-                Kategorileri İncele
-              </a>
-            </div>
-          </div>
         </div>
 
         {/* Side promos */}
         <div className="grid grid-cols-1 gap-4 xsmall:grid-cols-2 small:grid-cols-1 small:gap-5">
           <LocalizedClientLink
-            href="/categories/elektrikli-aletler"
+            href="/categories/olcu-kontrol-aletleri"
             className="group relative flex flex-col justify-between overflow-hidden rounded-xl bg-brand p-6 text-brand-fg"
           >
-            <Bolt
-              aria-hidden
-              className="absolute -right-6 -top-6 h-40 w-40 text-black/10"
-            />
+            {measureImage ? (
+              <PromoPhoto src={measureImage} />
+            ) : (
+              <ArrowsPointingOut
+                aria-hidden
+                className="absolute -right-6 -top-6 h-40 w-40 text-black/10"
+              />
+            )}
             <div className="relative">
               <span className="text-xs font-semibold uppercase tracking-widest opacity-80">
-                Fırsat Köşesi
+                Ölçü ve Kontrol Aletleri
               </span>
               <h2 className="mt-2 text-xl font-bold leading-snug">
-                Elektrikli aletlerde
+                Kumpas, gönye ve
                 <br />
-                avantajlı fiyatlar
+                su terazileri
               </h2>
             </div>
             <span className="relative mt-6 flex items-center gap-x-1 text-sm font-semibold group-hover:underline">
@@ -80,21 +112,28 @@ const Hero = () => {
             </span>
           </LocalizedClientLink>
           <LocalizedClientLink
-            href="/categories/is-guvenligi"
+            href="/categories/kaldirma-tasima"
             className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-brand-100 bg-brand-50 p-6 text-navy"
           >
-            <ShieldCheck
-              aria-hidden
-              className="absolute -right-6 -top-6 h-40 w-40 text-brand-ink/10"
-            />
+            {liftingImage ? (
+              <PromoPhoto
+                src={liftingImage}
+                className="border border-brand-100"
+              />
+            ) : (
+              <HandTruck
+                aria-hidden
+                className="absolute -right-6 -top-6 h-40 w-40 text-brand-ink/10"
+              />
+            )}
             <div className="relative">
               <span className="text-xs font-semibold uppercase tracking-widest text-brand-ink">
-                İş Güvenliği
+                Kaldırma ve Taşıma
               </span>
               <h2 className="mt-2 text-xl font-bold leading-snug">
-                Güvenli çalışma için
+                Caraskal, transpalet
                 <br />
-                gereken her şey
+                ve vinçler
               </h2>
             </div>
             <span className="relative mt-6 flex items-center gap-x-1 text-sm font-semibold text-brand-ink group-hover:underline">

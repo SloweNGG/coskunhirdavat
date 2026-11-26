@@ -2,6 +2,7 @@
 
 import { PRODUCT_FIELDS } from "@lib/constants"
 import { sdk } from "@lib/config"
+import { isProductOutOfStock } from "@lib/util/inventory"
 import { OptionValueIds } from "@lib/util/product-option-filters"
 import { sortProducts } from "@lib/util/sort-products"
 import { HttpTypes } from "@medusajs/types"
@@ -90,6 +91,42 @@ export const listProducts = async ({
         queryParams,
       }
     })
+}
+
+/**
+ * Which of the given product handles are out of stock (no variant can be
+ * bought). For the store grid, whose search-index hits carry no stock data.
+ * Cached like other catalog reads (about a minute); errors return [].
+ */
+export async function getOutOfStockHandles(
+  handles: string[]
+): Promise<string[]> {
+  const unique = Array.from(new Set(handles.filter(Boolean))).slice(0, 100)
+  if (!unique.length) return []
+
+  const next = {
+    ...(await getCacheOptions("products")),
+  }
+
+  return sdk.client
+    .fetch<{ products: HttpTypes.StoreProduct[] }>(`/store/products`, {
+      method: "GET",
+      query: {
+        handle: unique,
+        limit: unique.length,
+        fields:
+          "handle,variants.id,variants.manage_inventory,variants.allow_backorder,+variants.inventory_quantity",
+      },
+      next,
+      cache: "force-cache",
+    })
+    .then(({ products }) =>
+      products
+        .filter((product) => isProductOutOfStock(product))
+        .map((product) => product.handle)
+        .filter((handle): handle is string => !!handle)
+    )
+    .catch(() => [])
 }
 
 /**

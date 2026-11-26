@@ -22,7 +22,7 @@ export default async function Checkout() {
   return (
     // Screen split in half: the form hugs the middle from the left, the grey
     // cart panel hugs it from the right (both capped at 600px).
-    <div className="grid grid-cols-1 small:min-h-[calc(100vh-4rem)] small:grid-cols-2">
+    <div className="grid grid-cols-1 small:min-h-[calc(100vh-5rem)] small:grid-cols-2">
       <div className="px-6 py-10 small:flex small:justify-end small:py-7 small:pl-10 small:pr-14">
         <div className="w-full small:max-w-[600px]">
           <PaymentWrapper cart={cart}>

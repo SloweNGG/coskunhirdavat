@@ -26,9 +26,9 @@ export default async function CheckoutForm({
   }
 
   return (
-    // step bodies are indented under the numbered title, like the reference
-    <div className="w-full grid grid-cols-1 gap-y-8 small:[&>div>*:not(:first-child)]:pl-11">
-      <section className="flex flex-col gap-y-4">
+    // each step is a StepCard; its body is indented under the numbered title
+    <div className="grid w-full grid-cols-1 gap-y-4">
+      <section className="mb-2 flex flex-col gap-y-4">
         <div>
           <h1 className="text-2xl font-bold leading-tight text-navy">
             Siparişinizi tamamlayın

@@ -1,3 +1,5 @@
+import { DEFAULT_OPTION } from "../../lib/default-option";
+
 export type ProductOptionRow = {
   title?: string | null;
   values?: ({ value?: string | null } | null)[] | null;
@@ -6,7 +8,8 @@ export type ProductOptionRow = {
 /**
  * Flattens a product's options into `"<option title>:<value>"` entries, e.g.
  * `["Size:S", "Color:Red"]`. One field keeps the index simple; the storefront
- * splits on the first `:` to group the facet by option name.
+ * splits on the first `:` to group the facet by option name. The placeholder
+ * option of option-less products is left out, so it never shows as a facet.
  */
 export function toOptionValues(
   options: ProductOptionRow[] | null | undefined,
@@ -21,6 +24,10 @@ export function toOptionValues(
     return (option?.values ?? [])
       .map((optionValue) => optionValue?.value?.trim())
       .filter((value): value is string => Boolean(value))
+      .filter(
+        (value) =>
+          !(title === DEFAULT_OPTION.title && value === DEFAULT_OPTION.value),
+      )
       .map((value) => `${title}:${value}`);
   });
 

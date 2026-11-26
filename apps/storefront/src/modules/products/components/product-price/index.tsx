@@ -28,7 +28,7 @@ export default function ProductPrice({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="text-[42px] font-extrabold leading-none text-navy">
+        <span className="text-[42px] font-bold leading-none text-navy">
           {!variant && (
             <span className="mr-1 text-sm font-medium text-muted">
               Başlangıç fiyatı

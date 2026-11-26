@@ -76,15 +76,13 @@ const CurrentRefinements = ({ currencyCode }: { currencyCode: string }) => {
   }
 
   return (
-    <div className="flex flex-col gap-y-3" data-testid="current-refinements">
-      <div className="flex items-center justify-between gap-x-2 pr-6">
-        <span className="txt-compact-small-plus text-ui-fg-subtle">
-          Uygulanan filtreler
-        </span>
+    <div className="flex flex-col gap-y-2 px-4 py-3" data-testid="current-refinements">
+      <div className="flex items-center justify-between gap-x-2">
+        <span className="text-sm font-semibold text-navy">Seçili filtreler</span>
         {canClearAll && (
           <button
             onClick={clearAll}
-            className="txt-compact-small-plus text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
+            className="text-xs font-semibold text-brand-ink hover:text-navy"
             data-testid="clear-refinements"
           >
             Tümünü temizle
@@ -92,7 +90,7 @@ const CurrentRefinements = ({ currencyCode }: { currencyCode: string }) => {
         )}
       </div>
 
-      <ul className="flex flex-wrap gap-2 pr-6">
+      <ul className="flex flex-wrap gap-1.5">
         {refinements.map((refinement) => {
           const label = refinementLabel(refinement, currencyCode)
 
@@ -105,11 +103,11 @@ const CurrentRefinements = ({ currencyCode }: { currencyCode: string }) => {
               <button
                 onClick={() => refine(refinement)}
                 aria-label={`${label} filtresini kaldır`}
-                className="border-ui-border-interactive text-ui-fg-base border text-small-regular h-8 rounded-rounded px-3 flex items-center gap-x-1.5 transition-colors duration-150 hover:bg-ui-bg-base-hover"
+                className="flex h-7 items-center gap-x-1 rounded-full border border-brand/30 bg-brand-50 pl-2.5 pr-1.5 text-xs font-medium text-brand-ink transition-colors duration-150 hover:border-brand/60"
                 data-testid="remove-refinement"
               >
                 {label}
-                <XMarkMini className="text-ui-fg-muted" />
+                <XMarkMini />
               </button>
             </li>
           )

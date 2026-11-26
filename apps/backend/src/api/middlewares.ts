@@ -9,6 +9,10 @@ import { StoreCreateRestockSubscription } from './store/restock-subscriptions/va
 import { StoreCreateReview } from './store/reviews/validators'
 import { AdminUpdateReviewStatus } from './admin/reviews/status/validators'
 import { CreateQuoteSchema, SendQuoteSchema } from './admin/quotes/helpers'
+import {
+  AdminCreateHeroSlide,
+  AdminUpdateHeroSlide,
+} from './admin/hero-slides/validators'
 import { sentryErrorHandler } from '../lib/sentry-error-handler'
 
 // The product index declares filterable `status` and `sales_channel_ids`, so
@@ -70,6 +74,17 @@ export default defineMiddlewares({
       method: ['POST'],
       matcher: '/admin/quotes/:id/send',
       middlewares: [validateAndTransformBody(SendQuoteSchema)],
+    },
+    {
+      method: ['POST'],
+      matcher: '/admin/hero-slides',
+      middlewares: [validateAndTransformBody(AdminCreateHeroSlide)],
+    },
+    {
+      method: ['POST'],
+      // Also matches /admin/hero-slides/reorder, whose route checks its own body.
+      matcher: '/admin/hero-slides/:id',
+      middlewares: [validateAndTransformBody(AdminUpdateHeroSlide)],
     },
   ],
 })
