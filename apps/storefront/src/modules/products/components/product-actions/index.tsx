@@ -268,7 +268,7 @@ export default function ProductActions({
             {selectedVariant?.sku && (
               <span className="font-mono text-muted">
                 Ürün kodu:{" "}
-                <span className="font-semibold text-navy">
+                <span className="font-medium text-navy">
                   {selectedVariant.sku}
                 </span>
               </span>

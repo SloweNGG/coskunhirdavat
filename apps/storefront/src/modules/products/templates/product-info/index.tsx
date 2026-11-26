@@ -15,7 +15,7 @@ const ProductInfo = ({ product, reviews }: ProductInfoProps) => {
       {product.collection && (
         <LocalizedClientLink
           href={`/collections/${product.collection.handle}`}
-          className="w-fit font-mono text-xs font-semibold uppercase tracking-wider text-brand-ink hover:underline"
+          className="w-fit font-mono text-xs font-medium uppercase tracking-wider text-brand-ink hover:underline"
         >
           {product.collection.title}
         </LocalizedClientLink>

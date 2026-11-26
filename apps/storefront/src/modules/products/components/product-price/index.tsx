@@ -45,7 +45,7 @@ export default function ProductPrice({
         {isSale && (
           <>
             <span
-              className="text-xl font-medium text-muted line-through"
+              className="text-xl font-semibold text-muted line-through"
               data-testid="original-product-price"
               data-value={selectedPrice.original_price_number}
             >

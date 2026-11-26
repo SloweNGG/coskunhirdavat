@@ -21,7 +21,7 @@ const SectionHeading = ({
       <div className="flex items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           {eyebrow && (
-            <span className="font-mono text-xs font-semibold uppercase tracking-widest text-brand-ink">
+            <span className="font-mono text-xs font-medium uppercase tracking-widest text-brand-ink">
               {eyebrow}
             </span>
           )}

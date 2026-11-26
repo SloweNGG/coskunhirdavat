@@ -24,7 +24,7 @@ const Hero = () => {
             <dd className="px-3 py-1.5 text-white/70">1:1 · Usta işi</dd>
           </dl>
           <div className="relative flex max-w-xl flex-col gap-5">
-            <span className="w-fit rounded bg-brand px-3 py-1 font-mono text-xs font-semibold uppercase tracking-widest text-brand-fg">
+            <span className="w-fit rounded bg-brand px-3 py-1 font-mono text-xs font-medium uppercase tracking-widest text-brand-fg">
               {STORE_INFO.tagline}
             </span>
             <h1 className="text-3xl font-bold leading-tight small:text-5xl small:leading-[1.1]">

@@ -26,7 +26,7 @@ const Stamp = ({
             d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"
           />
         </defs>
-        <text className="fill-current font-mono text-[10px] font-bold uppercase">
+        <text className="fill-current font-mono text-[10px] font-medium uppercase">
           {/* 2 * PI * 44 = 276: spread the text evenly around the circle */}
           <textPath href={`#${id}`} textLength={274} lengthAdjust="spacing">
             {text}

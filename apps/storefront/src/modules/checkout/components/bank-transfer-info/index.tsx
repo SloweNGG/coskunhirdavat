@@ -39,7 +39,7 @@ const BankTransferInfo = ({
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold text-brand-ink">{a.name}</p>
-              <p className="select-all break-all font-mono text-[13px] font-semibold tracking-wide">
+              <p className="select-all break-all font-mono text-[13px] font-medium tracking-wide">
                 {a.iban}
               </p>
             </div>
